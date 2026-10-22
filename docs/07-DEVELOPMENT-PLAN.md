@@ -24,12 +24,12 @@ Exit: stack installs/builds against real MySQL; core architecture and any unreso
 Features: F01, foundations of F15/F16. Dependencies: Phase 0 stack baseline.
 
 - [x] Scaffold Angular and Nest workspaces, formatting/linting/typecheck, CI, environment examples without secrets. Clean install, lint, tests, and production builds pass locally.
-- [ ] Create initial migrations, MySQL connection, owner-bootstrap/recovery CLI, sessions, CSRF, login/logout/password change. Code is present; live database verification is pending.
-- [ ] Add app shell, route guards, backend guards, profile timezone, active-session management. Code and responsive login-shell checks pass; authenticated browser verification is pending the live database.
-- [ ] Set up reverse proxy/static SPA routing/API routing and persistent database/file volumes in local Compose. Configuration is present; Docker verification is unavailable on this machine.
-- [ ] Add minimal health endpoints, structured request IDs/logging, migration deployment command. Code is present; runtime verification is pending.
-- [ ] Establish backup script skeleton and an early restore smoke test before real work data enters the system. Scripts are present; an isolated restore has not run.
-- [ ] Generate initial OpenAPI; configure generated Angular API client and local Postman smoke requests. Runtime OpenAPI and a local smoke collection are configured; live contract generation and the generated client remain pending.
+- [x] Create initial migrations, MySQL connection, owner-bootstrap/recovery CLI, sessions, CSRF, login/logout/password change. Verified against XAMPP MariaDB 10.4.
+- [x] Add app shell, route guards, backend guards, profile timezone, active-session management. Verified in desktop and phone browser layouts, including rotation and revocation.
+- [x] Set up reverse proxy/static SPA routing/API routing and persistent database/file volumes in local Compose. Configuration is complete; Docker runtime verification is deferred because Docker is unavailable on this machine.
+- [x] Add minimal health endpoints, structured request IDs/logging, migration deployment command. Verified against the running API.
+- [x] Establish backup script skeleton and an early restore smoke test before real work data enters the system. A local SQL backup was restored into an isolated scratch database and checked before removal.
+- [x] Generate initial OpenAPI; configure generated Angular API client and local Postman smoke requests. The live contract is committed and code generation runs before web start/build/test/lint; all six Postman assertions pass.
 
 Exit: owner logs in from phone-sized and desktop layouts; private APIs/files reject anonymous access; logout/session revocation works; database survives service restart; CI checks pass.
 

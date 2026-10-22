@@ -71,8 +71,8 @@ The starting private pipeline is FFmpeg normalization plus a local Whisper-compa
 
 ## Phase 0 status
 
-Completed decisions: repository conventions, dependency selection, database compatibility policy, migration policy, security baseline, interface direction, and costed hosting proposal.
+Completed decisions: repository conventions, dependency selection, database compatibility policy, migration policy, security baseline, interface direction, and costed hosting proposal. The baseline is installed, compiled, and exercised against the detected XAMPP MariaDB instance.
 
 Verified evidence: a fresh dependency install, lint, unit tests, API build, optimized frontend build, and desktop/phone login layout checks all pass.
 
-Pending evidence: live database migration against XAMPP MariaDB, representative OCR/voice benchmark, and production MySQL 8.4 verification. These items stay visible in the development checklist.
+Pending evidence: representative OCR/voice benchmark and production MySQL 8.4 verification. These gates do not block the completed local Phase 1 foundation and stay visible for the phases they affect.

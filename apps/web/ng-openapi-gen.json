@@ -1,0 +1,8 @@
+{
+  "$schema": "../../node_modules/ng-openapi-gen/ng-openapi-gen-schema.json",
+  "input": "../../docs/api/openapi.json",
+  "output": "src/app/api",
+  "apiService": "WokimApi",
+  "services": false,
+  "promises": false
+}

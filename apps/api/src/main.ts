@@ -10,6 +10,8 @@ import { AppModule } from './app.module';
 import { ApiExceptionFilter } from './common/api-exception.filter';
 import { environment } from './config/environment';
 
+const httpLogger = new Logger('HTTP');
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const env = environment();
@@ -20,8 +22,20 @@ async function bootstrap() {
       response: Response,
       next: NextFunction,
     ) => {
+      const startedAt = Date.now();
       request.requestId = randomUUID();
       response.setHeader('X-Request-Id', request.requestId);
+      response.on('finish', () => {
+        httpLogger.log(
+          JSON.stringify({
+            requestId: request.requestId,
+            method: request.method,
+            path: request.originalUrl.split('?')[0],
+            status: response.statusCode,
+            durationMs: Date.now() - startedAt,
+          }),
+        );
+      });
       next();
     },
   );

@@ -1,6 +1,6 @@
 # WoKim — implementation plan
 
-Planning baseline: 22 October 2026. Status: Phase 0 and Phase 1 implementation in progress.
+Planning baseline: 22 October 2026. Status: Phase 0 baseline and local Phase 1 foundation complete; Phase 2 is next.
 
 This is a build specification for a private, responsive developer work-memory application. The confirmed stack is Angular, Node.js, NestJS, and MySQL. The working product description is not a final brand name.
 

@@ -1,6 +1,6 @@
 # Decisions, assumptions, and validation gates
 
-Baseline: 22 October 2026. These are planning decisions; no runtime, hosting provider, or processing benchmark has been validated in this workspace.
+Baseline: 22 October 2026. Phase 0 dependency/runtime choices and the local Phase 1 stack have been validated. Hosting, production MySQL, and OCR/transcription benchmarks remain open gates.
 
 ## Decision register
 
@@ -22,6 +22,8 @@ Baseline: 22 October 2026. These are planning decisions; no runtime, hosting pro
 | D14 | Online responsive app; local text drafts only | Proposed default; no full offline edits/sync in R1 |
 | D15 | Plain-text source/notes; derived text distinct | Proposed default; safe rendering and simple export |
 | D16 | No machine-generated facts promoted automatically | Source integrity; summaries remain optional R2 drafts |
+| D17 | XAMPP MariaDB 10.4 for local development; MySQL 8.4 for production | Local migration/auth/restore checks pass; CI is configured to exercise MySQL 8.4 after push |
+| D18 | Generate the Angular API client from committed live OpenAPI | `ng-openapi-gen` runs before frontend start/build/test/lint so contract drift fails normal work |
 
 ## Validation gates and defaults
 
@@ -55,6 +57,7 @@ Free software is feasible. Always-on hosting, increasing audio storage, off-host
 | Backup misses referenced files | Consistent write barrier/snapshot, file manifest/checksums, isolated restore |
 | Private work appears in logs/public assets | Authenticated media, safe logs, no public storage paths, fictional fixtures |
 | Scope expands into a Jira/Slack clone | R0/R1 matrix and R2 backlog; new features need an observed workflow reason |
+| Current Nest 11 Swagger line carries a moderate `js-yaml` advisory | The API never accepts YAML input; high-severity audit passes. Nest Swagger 12 requires Nest 12, so upgrade them together rather than forcing an incompatible dependency |
 
 ## Sources checked for planning
 

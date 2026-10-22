@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { argon2id, hash } from 'argon2';
 import { AppDataSource } from '../database/data-source';
 import { SessionEntity } from '../database/entities/session.entity';

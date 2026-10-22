@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import '../config/load-environment';
 import { DataSource } from 'typeorm';
 import { environment } from '../config/environment';
 import { SessionEntity } from './entities/session.entity';

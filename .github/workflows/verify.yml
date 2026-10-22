@@ -7,6 +7,31 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: wokim
+          MYSQL_USER: wokim
+          MYSQL_PASSWORD: ci-database-password
+          MYSQL_ROOT_PASSWORD: ci-root-password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --host=127.0.0.1 --user=root --password=ci-root-password"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      NODE_ENV: test
+      DB_TYPE: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: wokim
+      DB_USER: wokim
+      DB_PASSWORD: ci-database-password
+      SESSION_SECRET: ci-session-secret-with-at-least-32-characters
+      CSRF_SECRET: ci-csrf-secret-with-at-least-32-characters
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -14,5 +39,7 @@ jobs:
           node-version: 24.13.0
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - run: npm run db:migrate
+      - run: npm run lint
       - run: npm run build
       - run: npm test

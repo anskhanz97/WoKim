@@ -2,6 +2,7 @@ node_modules/
 .npm-cache/
 node_modules.failed-install/
 apps/*/node_modules.failed-install/
+apps/web/src/app/api/
 dist/
 coverage/
 .angular/

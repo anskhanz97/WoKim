@@ -36,21 +36,26 @@ export const readPassword = async (label: string): Promise<string> => {
       process.stdout.write('\n');
     };
     const onData = (chunk: Buffer) => {
-      const key = chunk.toString('utf8');
-      if (key === '\r' || key === '\n') {
-        cleanup();
-        resolve(value);
-      } else if (key === '\u0003') {
-        cleanup();
-        reject(new Error('Cancelled.'));
-      } else if (key === '\b' || key === '\u007f') {
-        if (value) {
-          value = value.slice(0, -1);
-          process.stdout.write('\b \b');
+      for (const key of chunk.toString('utf8')) {
+        if (key === '\r' || key === '\n') {
+          cleanup();
+          resolve(value);
+          return;
         }
-      } else if (!key.startsWith('\u001b')) {
-        value += key;
-        process.stdout.write('*');
+        if (key === '\u0003') {
+          cleanup();
+          reject(new Error('Cancelled.'));
+          return;
+        }
+        if (key === '\b' || key === '\u007f') {
+          if (value) {
+            value = value.slice(0, -1);
+            process.stdout.write('\b \b');
+          }
+        } else if (!key.startsWith('\u001b')) {
+          value += key;
+          process.stdout.write('*');
+        }
       }
     };
 

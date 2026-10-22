@@ -13,6 +13,7 @@
     "lint": "npm run lint --workspace @wokim/api && npm run lint --workspace @wokim/web",
     "test": "npm run test --workspace @wokim/api -- --runInBand && npm run test --workspace @wokim/web -- --watch=false",
     "test:e2e:api": "npm run test:e2e --workspace @wokim/api",
+    "api:generate": "npm run generate:api --workspace @wokim/web",
     "db:migrate": "npm run db:migrate --workspace @wokim/api",
     "db:revert": "npm run db:revert --workspace @wokim/api",
     "owner:bootstrap": "npm run owner:bootstrap --workspace @wokim/api",

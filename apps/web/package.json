@@ -3,10 +3,15 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "generate:api": "ng-openapi-gen",
+    "prestart": "npm run generate:api",
     "start": "ng serve",
+    "prebuild": "npm run generate:api",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
+    "pretest": "npm run generate:api",
     "test": "ng test",
+    "prelint": "npm run generate:api",
     "lint": "ng build --configuration development"
   },
   "private": true,
@@ -28,6 +33,7 @@
     "@angular/cli": "^21.2.27",
     "@angular/compiler-cli": "^21.2.0",
     "jsdom": "^28.0.0",
+    "ng-openapi-gen": "^1.1.0",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"

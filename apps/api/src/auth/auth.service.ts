@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash as hashPassword, verify as verifyPassword } from 'argon2';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { LessThan, Repository } from 'typeorm';
+import { IsNull, LessThan, MoreThan, Repository } from 'typeorm';
 import { environment } from '../config/environment';
 import { SessionEntity } from '../database/entities/session.entity';
 import { UserEntity } from '../database/entities/user.entity';
@@ -71,7 +71,7 @@ export class AuthService {
 
   async listSessions(userId: number): Promise<SessionEntity[]> {
     return this.sessions.find({
-      where: { userId },
+      where: { userId, revokedAt: IsNull(), expiresAt: MoreThan(new Date()) },
       order: { lastSeenAt: 'DESC' },
     });
   }

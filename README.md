@@ -36,3 +36,5 @@ postman collection run postman/wokim-phase-1.postman_collection.json
 ```
 
 See [the implementation plan](docs/README.md) and [the current development checklist](docs/07-DEVELOPMENT-PLAN.md).
+
+The committed Phase 1 OpenAPI contract is `docs/api/openapi.json`. `ng-openapi-gen` regenerates the ignored Angular client before frontend start, lint, test, and build commands.
