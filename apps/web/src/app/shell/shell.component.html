@@ -1,0 +1,37 @@
+<div class="shell">
+  <aside class="rail" aria-label="Primary navigation">
+    <a class="brand" routerLink="/today" aria-label="WoKim home">
+      <span class="brand-mark">W</span>
+      <span>WoKim</span>
+    </a>
+
+    <nav>
+      <a routerLink="/today" routerLinkActive="active"><span aria-hidden="true">◉</span> Today</a>
+      <span class="coming"><span aria-hidden="true">▤</span> Inbox <small>soon</small></span>
+      <span class="coming"><span aria-hidden="true">□</span> Projects <small>soon</small></span>
+      <span class="coming"><span aria-hidden="true">⌕</span> Search <small>soon</small></span>
+    </nav>
+
+    <div class="rail-footer">
+      <a routerLink="/settings/profile" routerLinkActive="active">Settings</a>
+      <button type="button" (click)="logout()">Sign out</button>
+    </div>
+  </aside>
+
+  <header class="mobile-header">
+    <a class="brand" routerLink="/today"><span class="brand-mark">W</span><span>WoKim</span></a>
+    <a class="avatar" routerLink="/settings/profile" aria-label="Open profile settings">
+      {{ auth.owner()?.displayName?.slice(0, 1) || 'W' }}
+    </a>
+  </header>
+
+  <main id="main-content"><router-outlet /></main>
+
+  <nav class="mobile-nav" aria-label="Primary navigation">
+    <a routerLink="/today" routerLinkActive="active">Today</a>
+    <span>Inbox</span>
+    <button type="button" disabled aria-label="Capture will arrive in Phase 2">+</button>
+    <span>Projects</span>
+    <a routerLink="/settings/profile" routerLinkActive="active">Settings</a>
+  </nav>
+</div>

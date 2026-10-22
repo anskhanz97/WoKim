@@ -1,0 +1,30 @@
+<div class="settings-page">
+  <header><p>Settings</p><h1>Profile and access</h1></header>
+  @if (message()) { <div class="notice success" role="status">{{ message() }}</div> }
+  @if (error()) { <div class="notice error" role="alert">{{ error() }}</div> }
+  <section>
+    <div class="section-copy"><h2>Your profile</h2><p>Timezone controls how WoKim groups daily check-ins and date-only deadlines.</p></div>
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+      <label for="display-name">Display name</label><input id="display-name" formControlName="displayName" autocomplete="name" />
+      <label for="timezone">Timezone</label><input id="timezone" formControlName="timezone" aria-describedby="timezone-help" />
+      <small id="timezone-help">Use an IANA name such as Asia/Karachi or Europe/London.</small><button type="submit" [disabled]="saving()">Save profile</button>
+    </form>
+  </section>
+  <section>
+    <div class="section-copy"><h2>Change password</h2><p>Changing it revokes every other session and rotates this one.</p></div>
+    <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+      <label for="current-password">Current password</label><input id="current-password" type="password" formControlName="currentPassword" autocomplete="current-password" />
+      <label for="new-password">New password</label><input id="new-password" type="password" formControlName="newPassword" autocomplete="new-password" />
+      <small>Use at least 12 characters.</small><button type="submit" [disabled]="saving()">Change password</button>
+    </form>
+  </section>
+  <section>
+    <div class="section-copy"><h2>Active sessions</h2><p>Revoke access from a device you no longer use.</p></div>
+    <div class="session-list">
+      @for (session of sessions(); track session.id) {
+        <article><div><strong>{{ session.deviceLabel || 'Unknown browser' }}</strong><span>{{ session.current ? 'Current session' : 'Last seen ' + (session.lastSeenAt | date:'medium') }}</span></div>
+        @if (!session.revokedAt) { <button type="button" (click)="revoke(session)">{{ session.current ? 'Sign out' : 'Revoke' }}</button> }</article>
+      } @empty { <p>No active sessions were found.</p> }
+    </div>
+  </section>
+</div>

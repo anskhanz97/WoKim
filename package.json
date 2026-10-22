@@ -1,0 +1,21 @@
+{
+  "name": "wokim",
+  "version": "0.1.0",
+  "private": true,
+  "description": "WoKim — a private work memory for developers.",
+  "packageManager": "npm@11.6.2",
+  "workspaces": ["apps/*"],
+  "engines": {"node": ">=24.0.0 <25"},
+  "scripts": {
+    "build": "npm run build --workspace @wokim/api && npm run build --workspace @wokim/web",
+    "dev:api": "npm run start:dev --workspace @wokim/api",
+    "dev:web": "npm run start --workspace @wokim/web",
+    "lint": "npm run lint --workspace @wokim/api && npm run lint --workspace @wokim/web",
+    "test": "npm run test --workspace @wokim/api -- --runInBand && npm run test --workspace @wokim/web -- --watch=false",
+    "test:e2e:api": "npm run test:e2e --workspace @wokim/api",
+    "db:migrate": "npm run db:migrate --workspace @wokim/api",
+    "db:revert": "npm run db:revert --workspace @wokim/api",
+    "owner:bootstrap": "npm run owner:bootstrap --workspace @wokim/api",
+    "owner:reset": "npm run owner:reset --workspace @wokim/api"
+  }
+}

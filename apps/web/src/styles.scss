@@ -1,0 +1,16 @@
+@use '@fontsource-variable/ibm-plex-sans';
+@use '@fontsource/ibm-plex-mono/400.css' as plexmono;
+:root {
+  color-scheme: light; --paper: #f4f6f8; --sheet: #ffffff; --ink: #172033; --slate: #667085;
+  --cobalt: #3155d9; --cobalt-soft: #edf0ff; --amber: #e59a17; --rule: #d9dee8;
+  --rule-strong: #b6bfce; --focus: rgba(49, 85, 217, .2); --danger: #b42318; --mono: 'IBM Plex Mono', monospace;
+  font-family: 'IBM Plex Sans Variable', 'Segoe UI', sans-serif; color: var(--ink); background: var(--paper); font-synthesis: none;
+}
+* { box-sizing: border-box; }
+html { min-width: 320px; background: var(--paper); }
+body { min-height: 100dvh; margin: 0; background: var(--paper); }
+button, input, textarea, select { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+::selection { background: #cdd6ff; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }

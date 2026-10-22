@@ -1,0 +1,35 @@
+<main class="login-page">
+  <section class="intro" aria-labelledby="login-title">
+    <a class="wordmark" href="/login"><span>W</span> WoKim</a>
+    <div class="intro-copy">
+      <p class="thread-label">Your private work memory</p>
+      <h1 id="login-title">Return to the work without rebuilding the context.</h1>
+      <p>Capture requests, preserve their source, and leave a clean resume point whenever another task interrupts.</p>
+    </div>
+    <div class="thread-preview" aria-hidden="true">
+      <span class="thread-dot"></span>
+      <div><strong>Invitation validation</strong><small>Resume with the expired-token test</small></div>
+    </div>
+  </section>
+
+  <section class="login-panel" aria-labelledby="sign-in-title">
+    <form (ngSubmit)="submit()" [formGroup]="form" novalidate>
+      <h2 id="sign-in-title">Sign in</h2>
+      <p>Use the owner account created on this private installation.</p>
+
+      @if (error()) { <div class="form-error" role="alert">{{ error() }}</div> }
+
+      <label for="email">Email</label>
+      <input id="email" type="email" formControlName="email" autocomplete="username" />
+      @if (form.controls.email.touched && form.controls.email.invalid) { <small class="field-error">Enter a valid email.</small> }
+
+      <label for="password">Password</label>
+      <input id="password" type="password" formControlName="password" autocomplete="current-password" />
+      @if (form.controls.password.touched && form.controls.password.invalid) { <small class="field-error">Password must contain at least 12 characters.</small> }
+
+      <button class="primary" type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Signing in…' : 'Sign in to WoKim' }}
+      </button>
+    </form>
+  </section>
+</main>

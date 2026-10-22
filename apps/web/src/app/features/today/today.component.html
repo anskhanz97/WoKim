@@ -1,0 +1,26 @@
+<div class="page">
+  <header class="page-heading">
+    <div><p>{{ today }}</p><h1>Good morning, {{ auth.owner()?.displayName }}.</h1></div>
+    <button type="button" disabled title="Capture arrives in Phase 2"><span>+</span> Capture</button>
+  </header>
+
+  <section class="current-thread" aria-labelledby="current-title">
+    <div class="thread-line" aria-hidden="true"><span></span></div>
+    <div><p class="section-label">Current thread</p><h2 id="current-title">No task is active yet</h2><p>Phase 1 has secured your private workspace. Projects, tasks, and a real resume point arrive in the next slices.</p></div>
+  </section>
+
+  <section class="check-in" aria-labelledby="check-in-title">
+    <header><div><p class="section-label">Daily clarity</p><h2 id="check-in-title">Four questions for today</h2></div><span>Available after tasks and follow-ups</span></header>
+    <ol>
+      <li><span>01</span><div><strong>What am I working on?</strong><p>Your active task and intended outcome will appear here.</p></div></li>
+      <li><span>02</span><div><strong>What did I interrupt?</strong><p>Paused work will retain its latest checkpoint.</p></div></li>
+      <li><span>03</span><div><strong>What is due soon?</strong><p>Upcoming and overdue work will be separated clearly.</p></div></li>
+      <li><span>04</span><div><strong>Who owes me an answer?</strong><p>Open questions will stay attached to people and projects.</p></div></li>
+    </ol>
+  </section>
+
+  <aside class="setup-note">
+    <div><strong>Private workspace ready</strong><p>Your profile, sessions, CSRF protection, migrations, and API contract are connected.</p></div>
+    <a routerLink="/settings/profile">Review profile</a>
+  </aside>
+</div>
