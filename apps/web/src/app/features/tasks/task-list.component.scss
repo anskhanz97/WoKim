@@ -27,7 +27,7 @@ button {
   min-height: 2.75rem;
   padding: 0 1rem;
   border: 0;
-  border-radius: 0.3rem;
+  border-radius: var(--radius-sm);
   background: var(--cobalt);
   color: white;
   font-weight: 650;
@@ -52,7 +52,7 @@ select {
   min-width: 0;
   padding: 0.7rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 0.3rem;
+  border-radius: var(--radius-sm);
   background: white;
 }
 form label:nth-child(2) {

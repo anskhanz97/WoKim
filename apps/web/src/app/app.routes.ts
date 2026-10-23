@@ -43,6 +43,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'all-projects',
+        loadComponent: () =>
+          import('./features/all-projects/all-projects.component').then(
+            (module) => module.AllProjectsComponent,
+          ),
+      },
+      {
         path: 'projects/:projectId/tasks',
         loadComponent: () =>
           import('./features/tasks/task-list.component').then((module) => module.TaskListComponent),

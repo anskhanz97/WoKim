@@ -49,7 +49,7 @@
           }
           <div class="project-actions"><a [routerLink]="['/projects', project.id, 'overview']">Open workspace →</a>
           <details><summary>More actions</summary><div class="action-menu">
-            <button type="button" class="secondary" (click)="manage(project)">Manage people &amp; teams</button>
+            <a class="menu-action" [routerLink]="['/projects', project.id, 'people']">Manage people &amp; teams</a>
             @if (project.status === 'active') {
               <button type="button" class="secondary" (click)="transition(project, 'complete')">Complete</button>
               <button type="button" class="secondary" (click)="transition(project, 'archive')">Archive</button>
@@ -65,53 +65,5 @@
         </li>
       }
     </ol>
-  }
-  @if (selected(); as project) {
-    <section class="associations">
-      <div>
-        <h2>{{ project.name }} context</h2>
-        <button
-          type="button"
-          class="secondary"
-          (click)="selected.set(null); associations.set(null)"
-        >
-          Close
-        </button>
-      </div>
-      <label
-        >Person<select [formControl]="personId">
-          <option value="">Choose a person</option>
-          @for (person of people(); track person.id) {
-            <option [value]="person.id">{{ person.displayName }}</option>
-          }
-        </select></label
-      ><button type="button" (click)="addPerson()">Add person</button
-      ><label
-        >Team<select [formControl]="teamId">
-          <option value="">Choose a team</option>
-          @for (team of teams(); track team.id) {
-            <option [value]="team.id">{{ team.name }}</option>
-          }
-        </select></label
-      ><button type="button" (click)="addTeam()">Add team</button>
-      @if (associations(); as links) {
-        <ul>
-          @for (person of links.people; track person.id) {
-            <li>
-              {{ person.displayName }}
-              <button type="button" class="link" (click)="removePerson(person.id)">Remove</button>
-            </li>
-          }
-          @for (team of links.teams; track team.id) {
-            <li>
-              {{ team.name }}
-              <button type="button" class="link" (click)="removeTeam(team.id)">Remove</button>
-            </li>
-          } @empty {
-            <li>No people or teams linked yet.</li>
-          }
-        </ul>
-      }
-    </section>
   }
 </div>

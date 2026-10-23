@@ -1,11 +1,13 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../core/auth/auth.service';
 import { WorkMemoryService } from '../core/work-memory.service';
 import { CaptureComponent } from '../features/capture/capture.component';
 import { CaptureDraftService } from '../core/capture-draft.service';
 import { PromptDialogComponent } from '../shared/prompt-dialog.component';
+import { SidebarStateService } from './sidebar-state.service';
 import { LucideDatabaseBackup, LucideEllipsis, LucideFolderKanban, LucideHouse, LucideInbox, LucideLogOut, LucidePlus, LucideSearch, LucideSettings, LucideSparkles, LucideUsers } from '@lucide/angular';
 
 @Component({
@@ -18,6 +20,7 @@ export class ShellComponent implements OnInit, OnDestroy {
   @ViewChild('resumeDialog') resumeDialog?: ElementRef<HTMLDialogElement>;
   @ViewChild('moreDialog') moreDialog?: ElementRef<HTMLDialogElement>;
   private pollId?: number;
+  private routeSubscription?: Subscription;
   readonly focusAction = signal<'pause' | 'wait' | 'finish'>('pause');
   readonly focusError = signal('');
   readonly focusSaving = signal(false);
@@ -31,6 +34,7 @@ export class ShellComponent implements OnInit, OnDestroy {
   constructor(
     readonly auth: AuthService,
     readonly memory: WorkMemoryService,
+    readonly sidebar: SidebarStateService,
     private readonly drafts: CaptureDraftService,
     private readonly router: Router,
   ) {}
@@ -41,11 +45,25 @@ export class ShellComponent implements OnInit, OnDestroy {
       if (document.visibilityState === 'visible') void this.memory.refreshFocus();
     }, 120000);
     document.addEventListener('visibilitychange', this.visibilityHandler);
+    this.routeSubscription = this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd && !event.urlAfterRedirects.startsWith('/all-projects') && this.sidebar.mode() === 'hidden') {
+        this.sidebar.reveal();
+      }
+    });
   }
 
   ngOnDestroy(): void {
     if (this.pollId) window.clearInterval(this.pollId);
     document.removeEventListener('visibilitychange', this.visibilityHandler);
+    this.routeSubscription?.unsubscribe();
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  revealSidebarOnEscape(event: Event): void {
+    if (this.router.url.startsWith('/all-projects') && this.sidebar.mode() === 'hidden' && !document.querySelector('dialog[open]')) {
+      event.preventDefault();
+      this.sidebar.reveal();
+    }
   }
 
   openCapture(): void { this.memory.captureOpen.set(true); }

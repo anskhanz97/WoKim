@@ -57,17 +57,29 @@
       }
     </ol>
   } @else if (mode === 'history') {
-    <form (ngSubmit)="reload()"><label>From<input type="date" [formControl]="from"/></label><label>To<input type="date" [formControl]="to"/></label><button type="submit">Apply</button><button type="button" (click)="range(1)">Day</button><button type="button" (click)="range(7)">Week</button><button type="button" (click)="range(31)">Month</button></form>
-    <ol>
+    <section class="history-shell">
+      <div class="history-heading">
+        <div><h2>{{ project()?.name || 'Project activity' }}</h2><p>Every recorded change, decision, and hand-off in chronological context.</p></div>
+        <span>{{ history().length }} {{ history().length === 1 ? 'event' : 'events' }}</span>
+      </div>
+      <form class="history-filters" (ngSubmit)="reload()">
+        <div class="date-fields"><label>From<input type="date" [formControl]="from"/></label><label>To<input type="date" [formControl]="to"/></label><button type="submit">Apply range</button></div>
+        <div class="range-switch" aria-label="Quick date ranges"><button type="button" (click)="range(1)">Day</button><button type="button" (click)="range(7)">Week</button><button type="button" (click)="range(31)">Month</button></div>
+      </form>
+    </section>
+    <ol class="timeline">
       @for (event of history(); track event.id) {
-        <li>
-          <strong>{{ eventLabel(event.eventType) }}</strong>
-          <time>{{ event.createdAt | date: 'medium' }}</time>
-          @if (event.taskId) { <a [routerLink]="['/tasks', event.taskId]">Open task</a> }
-          @if (event.entryId) { <a [routerLink]="['/entries', event.entryId]">Open source</a> }
+        <li class="timeline-event">
+          <div class="timeline-rail" aria-hidden="true"><span></span></div>
+          <article>
+            <time>{{ event.createdAt | date: 'MMM d, y · h:mm a' }}</time>
+            <h2>{{ eventLabel(event.eventType) }}</h2>
+            <p>{{ eventSummary(event) }}</p>
+            <div class="timeline-actions">@if (event.taskId) { <a [routerLink]="['/tasks', event.taskId]">Open task</a> } @if (event.entryId) { <a [routerLink]="['/entries', event.entryId]">Open source</a> }</div>
+          </article>
         </li>
       } @empty {
-        <li>No recorded project activity.</li>
+        <li class="history-empty"><strong>No activity in this range</strong><p>Try Week or Month, or clear the dates to return to the full project story.</p></li>
       }
     </ol>
   } @else if (mode === 'evidence') {
@@ -96,11 +108,8 @@
   } @else {
     @if (project(); as item) { <h2>{{ item.name }}</h2> }
     <div class="association-controls">
-      <label>Person<select [formControl]="personId"><option value="">Choose a person</option>@for(person of people();track person.id){<option [value]="person.id">{{person.displayName}}</option>}</select></label>
-      <label>Role label<input [formControl]="roleLabel" maxlength="120" placeholder="Optional" /></label>
-      <button type="button" (click)="addPerson()" [disabled]="!personId.value">Add person</button>
-      <label>Team<select [formControl]="teamId"><option value="">Choose a team</option>@for(team of teams();track team.id){<option [value]="team.id">{{team.name}}</option>}</select></label>
-      <button type="button" (click)="addTeam()" [disabled]="!teamId.value">Add team</button>
+      <div class="association-group person-linker"><div><strong>Link a person</strong><span>Add their role in this project for faster context.</span></div><div class="association-fields"><label>Person<select [formControl]="personId"><option value="">Choose a person</option>@for(person of people();track person.id){<option [value]="person.id">{{person.displayName}}</option>}</select></label><label>Role label<input [formControl]="roleLabel" maxlength="120" placeholder="Optional" /></label><button type="button" (click)="addPerson()" [disabled]="!personId.value">Add person</button></div></div>
+      <div class="association-group team-linker"><div><strong>Link a team</strong><span>Connect the group responsible for this work.</span></div><div class="association-fields"><label>Team<select [formControl]="teamId"><option value="">Choose a team</option>@for(team of teams();track team.id){<option [value]="team.id">{{team.name}}</option>}</select></label><button type="button" (click)="addTeam()" [disabled]="!teamId.value">Add team</button></div></div>
     </div>
     @if (associations(); as links) {
       <section><h3>People</h3><ol>@for(person of links.people;track person.id){<li><a [routerLink]="['/people',person.id]">{{person.displayName}}</a><span>{{person.roleLabel || 'No role label'}}</span><button type="button" (click)="removePerson(person.id)">Remove</button></li>}@empty{<li>No people linked.</li>}</ol></section>

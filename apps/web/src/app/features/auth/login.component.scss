@@ -15,9 +15,9 @@ form { width: min(100%, 27rem); padding: clamp(1.5rem, 4vw, 2.5rem); border: 1px
 h2 { margin: 0; font-size: 1.75rem; letter-spacing: -.025em; }
 form > p { margin: .5rem 0 1.8rem; color: var(--slate); line-height: 1.55; }
 label { display: block; margin: 1rem 0 .4rem; font-weight: 600; }
-input { width: 100%; height: 3rem; padding: 0 .8rem; border: 1px solid var(--rule-strong); border-radius: .3rem; font: inherit; }
+input { width: 100%; height: 3rem; padding: 0 .8rem; border: 1px solid var(--rule-strong); border-radius: var(--radius-sm); font: inherit; }
 input:focus { outline: 3px solid var(--focus); border-color: var(--cobalt); }
-.primary { width: 100%; min-height: 3rem; margin-top: 1.4rem; border: 0; border-radius: .3rem; background: var(--cobalt); color: white; font: inherit; font-weight: 650; cursor: pointer; }
+.primary { width: 100%; min-height: 3rem; margin-top: 1.4rem; border: 0; border-radius: var(--radius-sm); background: var(--cobalt); color: white; font: inherit; font-weight: 650; cursor: pointer; }
 .primary:disabled { opacity: .6; cursor: wait; }
 .form-error { padding: .75rem; border: 1px solid var(--danger); border-radius:var(--radius-sm); background: #fff1f1; color: #8c1b1b; }
 .field-error { display: block; margin-top: .35rem; color: var(--danger); }

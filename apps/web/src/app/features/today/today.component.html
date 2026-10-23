@@ -8,7 +8,7 @@
         <p class="hero-intro">One place for every active thread, decision, voice note, and visual proof.</p>
         <div class="hero-actions">
           <button type="button" class="capture-button" data-capture-trigger (click)="memory.captureOpen.set(true)"><svg lucideZap aria-hidden="true"></svg> Capture a thought</button>
-          <a routerLink="/projects">Explore projects <svg lucideArrowRight aria-hidden="true"></svg></a>
+          <a routerLink="/all-projects">Explore projects <svg lucideArrowRight aria-hidden="true"></svg></a>
         </div>
         <div class="hero-capabilities" aria-label="WoKim capabilities">
           <span><svg lucideAudioLines aria-hidden="true"></svg> Voice memory</span>
@@ -19,6 +19,32 @@
       <div class="hero-art" aria-hidden="true"><img src="/assets/work-constellation.png" alt="" /><span class="orbit orbit-one"></span><span class="orbit orbit-two"></span></div>
     </header>
 
+    @if (isHistoric()) {
+      <section class="day-memory" aria-labelledby="day-memory-title">
+        <div class="day-memory-heading"><div><span>{{ view()?.localDate | date:'fullDate' }}</span><h2 id="day-memory-title">The work trail for this day</h2><p>Projects and tasks are ordered exactly when their recorded moments happened.</p></div><div class="day-count"><strong>{{ today.timeline.length }}</strong><span>recorded {{ today.timeline.length === 1 ? 'moment' : 'moments' }}</span></div></div>
+        <div class="day-timeline">
+          @for (activity of today.timeline; track activity.id) {
+            <article class="day-event">
+              <div class="day-rail" aria-hidden="true"><span></span></div>
+              <div class="day-event-card">
+                <div class="day-event-meta"><time><svg lucideClock3 aria-hidden="true"></svg>{{ activity.createdAt | date:'h:mm a' }}</time><span><svg lucideFolderKanban aria-hidden="true"></svg>{{ activity.projectName || 'Unassigned work' }}</span></div>
+                <h3>{{ activity.taskTitle || activity.entryTitle || activityLabel(activity.eventType) }}</h3>
+                <p>{{ activitySummary(activity) }}</p>
+                <div class="day-event-actions">
+                  @if (activity.taskId) { <button type="button" (click)="openHistoryTask(activity.taskId)" [disabled]="historyTaskLoading()">View task details</button> }
+                  @if (activity.entryId) { <a [routerLink]="['/entries',activity.entryId]">Open source <svg lucideArrowRight aria-hidden="true"></svg></a> }
+                </div>
+              </div>
+            </article>
+          } @empty {
+            <div class="day-empty"><svg lucideListChecks aria-hidden="true"></svg><h2>No recorded work on this day</h2><p>No task changes, captured sources, or project events were saved for {{ view()?.localDate | date:'longDate' }}. Choose another day below to continue travelling through the record.</p></div>
+          }
+        </div>
+        @if (today.checkIn; as checkIn) {
+          <aside class="day-reflection"><h2>Daily reflection</h2><p>{{ checkIn.reflection || checkIn.intendedOutcome || 'A check-in was saved without a written reflection.' }}</p></aside>
+        }
+      </section>
+    } @else {
     <section class="focus-card" aria-labelledby="current-title">
       <div class="focus-orb"><span></span><svg lucidePlay aria-hidden="true"></svg></div>
       <div class="focus-copy">
@@ -66,7 +92,11 @@
         <button type="submit">Save check-in</button>@if(saved()){<span role="status">Saved to your timeline</span>}
       </form>
     </details>
+    }
 
     <aside class="history-picker"><div><svg lucideCalendarDays aria-hidden="true"></svg><span><strong>Travel through your work history</strong><small>Open any day exactly as it was recorded.</small></span></div><label><span>Choose a day</span><input type="date" [formControl]="historyDate" /></label><a [routerLink]="['/check-ins',historyDate.value]">Open day <svg lucideArrowRight aria-hidden="true"></svg></a></aside>
+    @if (historyTask(); as task) {
+      <div class="task-modal-backdrop" (click)="historyTask.set(null)"><dialog open aria-modal="true" aria-labelledby="history-task-title" (click)="$event.stopPropagation()"><button class="modal-close" type="button" aria-label="Close task details" (click)="historyTask.set(null)"><svg lucideX aria-hidden="true"></svg></button><span class="status-badge">{{ task.status }}</span><h2 id="history-task-title">{{ task.title }}</h2><p>{{ task.description || 'No task description was recorded.' }}</p><dl><div><dt>Next action</dt><dd>{{ task.nextAction || 'No next action recorded.' }}</dd></div><div><dt>Priority</dt><dd>{{ task.priority }}</dd></div>@if(task.deadline){<div><dt>Deadline</dt><dd>{{ task.deadline.date || task.deadline.at }}</dd></div>}</dl><a [routerLink]="['/tasks',task.id]">Open full task <svg lucideArrowRight aria-hidden="true"></svg></a></dialog></div>
+    }
   } @else {<div class="loading-scene" role="status"><span></span><span></span><span></span><p>Connecting your work threads…</p></div>}
 </div>

@@ -26,6 +26,19 @@ import type {
   SaveCheckInDto,
 } from './focus.dto';
 
+interface DailyActivityRow {
+  id: string;
+  eventType: string;
+  projectId: string | null;
+  projectName: string | null;
+  taskId: string | null;
+  taskTitle: string | null;
+  entryId: string | null;
+  entryTitle: string | null;
+  payload: Record<string, unknown> | string;
+  createdAt: Date;
+}
+
 @Injectable()
 export class FocusService {
   constructor(private readonly dataSource: DataSource) {}
@@ -152,28 +165,43 @@ export class FocusService {
         code: 'VALIDATION_ERROR',
         message: 'Date must use YYYY-MM-DD.',
       });
-    const [focus, paused, due, waiting, checkIn] = await Promise.all([
-      this.get(),
-      this.dataSource.manager.find(TaskEntity, {
-        where: { status: 'paused' },
-        order: { updatedAt: 'DESC' },
-        take: 100,
-      }),
-      this.dataSource.manager
-        .createQueryBuilder(TaskEntity, 'task')
-        .where('task.trashed_at IS NULL')
-        .andWhere("task.status NOT IN ('done','cancelled')")
-        .andWhere('(task.due_date IS NOT NULL OR task.due_at IS NOT NULL)')
-        .orderBy('COALESCE(task.due_at,task.due_date)', 'ASC')
-        .limit(100)
-        .getMany(),
-      this.dataSource.manager.find(FollowUpEntity, {
-        where: { status: 'waiting' },
-        order: { followUpOn: 'ASC', createdAt: 'DESC' },
-        take: 100,
-      }),
-      this.checkIn(localDate, false),
-    ]);
+    const [focus, paused, due, waiting, checkIn, activityRows] =
+      await Promise.all([
+        this.get(),
+        this.dataSource.manager.find(TaskEntity, {
+          where: { status: 'paused' },
+          order: { updatedAt: 'DESC' },
+          take: 100,
+        }),
+        this.dataSource.manager
+          .createQueryBuilder(TaskEntity, 'task')
+          .where('task.trashed_at IS NULL')
+          .andWhere("task.status NOT IN ('done','cancelled')")
+          .andWhere('(task.due_date IS NOT NULL OR task.due_at IS NOT NULL)')
+          .orderBy('COALESCE(task.due_at,task.due_date)', 'ASC')
+          .limit(100)
+          .getMany(),
+        this.dataSource.manager.find(FollowUpEntity, {
+          where: { status: 'waiting' },
+          order: { followUpOn: 'ASC', createdAt: 'DESC' },
+          take: 100,
+        }),
+        this.checkIn(localDate, false),
+        this.dataSource.manager.query<DailyActivityRow[]>(
+          `SELECT activity.id,activity.event_type AS eventType,
+                activity.project_id AS projectId,project.name AS projectName,
+                activity.task_id AS taskId,task.title AS taskTitle,
+                activity.entry_id AS entryId,entry.title AS entryTitle,
+                activity.payload,activity.created_at AS createdAt
+         FROM activity_events activity
+         LEFT JOIN projects project ON project.id=activity.project_id
+         LEFT JOIN tasks task ON task.id=activity.task_id
+         LEFT JOIN entries entry ON entry.id=activity.entry_id
+         WHERE activity.created_at>=? AND activity.created_at<DATE_ADD(?, INTERVAL 1 DAY)
+         ORDER BY activity.created_at ASC,activity.id ASC`,
+          [localDate, localDate],
+        ),
+      ]);
     return {
       localDate,
       timezone: owner.timezone,
@@ -182,6 +210,13 @@ export class FocusService {
       due,
       waiting,
       checkIn,
+      timeline: activityRows.map((row) => ({
+        ...row,
+        payload:
+          typeof row.payload === 'string'
+            ? (JSON.parse(row.payload) as Record<string, unknown>)
+            : row.payload,
+      })),
     };
   }
 

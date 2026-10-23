@@ -188,6 +188,47 @@ export class OrganizationService {
       .addOrderBy('project.id', 'ASC')
       .getMany();
   }
+  async listAllProjects() {
+    const rows = await this.dataSource.manager.query<
+      Array<{
+        id: string;
+        name: string;
+        description: string | null;
+        status: string;
+        targetDate: string | null;
+        repositoryUrl: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        version: number;
+        taskCount: string | number;
+        activityCount: string | number;
+        lastActivityAt: Date | null;
+      }>
+    >(
+      `SELECT project.id,project.name,project.description,project.status,
+              project.target_date AS targetDate,project.repository_url AS repositoryUrl,
+              project.created_at AS createdAt,project.updated_at AS updatedAt,project.version,
+              COALESCE(task.taskCount,0) AS taskCount,
+              COALESCE(activity.activityCount,0) AS activityCount,
+              activity.lastActivityAt AS lastActivityAt
+       FROM projects project
+       LEFT JOIN (
+         SELECT project_id,COUNT(*) AS taskCount FROM tasks
+         WHERE trashed_at IS NULL GROUP BY project_id
+       ) task ON task.project_id=project.id
+       LEFT JOIN (
+         SELECT project_id,COUNT(*) AS activityCount,MAX(created_at) AS lastActivityAt
+         FROM activity_events WHERE project_id IS NOT NULL GROUP BY project_id
+       ) activity ON activity.project_id=project.id
+       ORDER BY project.updated_at DESC,project.id ASC
+       LIMIT 100`,
+    );
+    return rows.map((row) => ({
+      ...row,
+      taskCount: Number(row.taskCount),
+      activityCount: Number(row.activityCount),
+    }));
+  }
   async project(id: string) {
     return this.find(this.projects, id, 'Project');
   }

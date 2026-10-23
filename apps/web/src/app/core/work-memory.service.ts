@@ -12,6 +12,13 @@ export interface Project {
   repositoryUrl?: string | null;
   version: number;
 }
+export interface ProjectAtlasItem extends Project {
+  createdAt: string;
+  updatedAt: string;
+  taskCount: number;
+  activityCount: number;
+  lastActivityAt: string | null;
+}
 export interface Attachment {
   id: string;
   originalName: string;
@@ -179,6 +186,13 @@ export interface TodayView {
   due: Task[];
   waiting: FollowUp[];
   checkIn: CheckIn | null;
+  timeline: DailyActivity[];
+}
+export interface DailyActivity extends ProjectActivity {
+  projectId: string | null;
+  projectName: string | null;
+  taskTitle: string | null;
+  entryTitle: string | null;
 }
 export interface FollowUp {
   id: string;
@@ -252,6 +266,15 @@ export class WorkMemoryService {
     return (
       await firstValueFrom(
         this.http.get<DataResponse<Project[]>>(`/api/v1/projects?${params}`, {
+          withCredentials: true,
+        }),
+      )
+    ).data;
+  }
+  async allProjects(): Promise<ProjectAtlasItem[]> {
+    return (
+      await firstValueFrom(
+        this.http.get<DataResponse<ProjectAtlasItem[]>>('/api/v1/all-projects', {
           withCredentials: true,
         }),
       )

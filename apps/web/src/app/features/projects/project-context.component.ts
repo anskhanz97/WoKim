@@ -67,7 +67,18 @@ export class ProjectContextComponent implements OnInit {
     this.error.set('');
     try {
       if (this.mode === 'decisions') this.decisions.set(await this.memory.projectDecisions(this.projectId));
-      else if (this.mode === 'history') this.history.set(await this.memory.projectHistory(this.projectId, this.from.value || undefined, this.to.value || undefined));
+      else if (this.mode === 'history') {
+        const [project, history] = await Promise.all([
+          this.memory.project(this.projectId),
+          this.memory.projectHistory(
+            this.projectId,
+            this.from.value || undefined,
+            this.to.value || undefined,
+          ),
+        ]);
+        this.project.set(project);
+        this.history.set(history);
+      }
       else if (this.mode === 'evidence') {
         const [project, evidence, tasks] = await Promise.all([
           this.memory.project(this.projectId),
@@ -195,7 +206,17 @@ export class ProjectContextComponent implements OnInit {
   imageUrl(id: string) { return `/api/v1/attachments/${encodeURIComponent(id)}/thumbnail`; }
 
   eventLabel(value: string) {
-    return value.replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+    return value.replaceAll('.', ' ').replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  eventSummary(event: ProjectActivity) {
+    const payload = event.payload;
+    return String(
+      payload['title'] ||
+        payload['reason'] ||
+        payload['status'] ||
+        'A project record changed and was preserved in the activity stream.',
+    );
   }
 
   private async changeAssociation(change: () => Promise<Project>) {

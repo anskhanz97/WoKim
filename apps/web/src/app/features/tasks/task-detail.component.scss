@@ -108,7 +108,7 @@ textarea,
 select {
   padding: 0.7rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 0.3rem;
+  border-radius: var(--radius-sm);
   background: white;
 }
 .row {

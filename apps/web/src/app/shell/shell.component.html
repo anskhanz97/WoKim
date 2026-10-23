@@ -1,24 +1,29 @@
 <a class="skip-link" href="#main-content">Skip to main content</a>
-<div class="shell">
-  <aside class="rail" aria-label="Primary navigation">
-    <a class="brand" routerLink="/today" aria-label="WoKim home">
-      <span class="brand-mark"><span></span></span>
-      <span class="brand-name">WoKim<small>work memory</small></span>
-    </a>
+<div class="shell" [class.is-collapsed]="sidebar.mode() === 'collapsed'" [class.is-hidden]="sidebar.mode() === 'hidden'">
+  <aside id="primary-sidebar" class="rail" aria-label="Primary navigation">
+    <div class="rail-head">
+      <a class="brand" routerLink="/today" aria-label="WoKim home" title="WoKim home">
+        <span class="brand-mark"><span></span></span>
+        <span class="brand-name">WoKim<small>work memory</small></span>
+      </a>
+      <button class="rail-toggle" type="button" [attr.aria-label]="sidebar.mode() === 'collapsed' ? 'Expand sidebar' : 'Collapse sidebar'" [attr.title]="sidebar.mode() === 'collapsed' ? 'Expand sidebar' : 'Collapse sidebar'" aria-controls="primary-sidebar" [attr.aria-expanded]="sidebar.mode() === 'expanded'" (click)="sidebar.toggleCollapsed()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path [attr.d]="sidebar.mode() === 'collapsed' ? 'm13 9 3 3-3 3' : 'm16 9-3 3 3 3'"/></svg>
+      </button>
+    </div>
 
     <nav>
-      <a routerLink="/today" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideHouse aria-hidden="true"></svg> Today</a>
-      <a routerLink="/inbox" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideInbox aria-hidden="true"></svg> Inbox <span class="nav-glow"></span></a>
-      <a routerLink="/projects" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideFolderKanban aria-hidden="true"></svg> Projects</a>
-      <a routerLink="/search" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideSearch aria-hidden="true"></svg> Search <kbd>⌘K</kbd></a>
+      <a routerLink="/today" routerLinkActive="active" ariaCurrentWhenActive="page" aria-label="Today" title="Today"><svg lucideHouse aria-hidden="true"></svg><span class="nav-label">Today</span></a>
+      <a routerLink="/inbox" routerLinkActive="active" ariaCurrentWhenActive="page" aria-label="Inbox" title="Inbox"><svg lucideInbox aria-hidden="true"></svg><span class="nav-label">Inbox</span><span class="nav-glow"></span></a>
+      <a routerLink="/projects" routerLinkActive="active" ariaCurrentWhenActive="page" aria-label="Projects" title="Projects"><svg lucideFolderKanban aria-hidden="true"></svg><span class="nav-label">Projects</span></a>
+      <a routerLink="/search" routerLinkActive="active" ariaCurrentWhenActive="page" aria-label="Search" title="Search"><svg lucideSearch aria-hidden="true"></svg><span class="nav-label">Search</span><kbd>⌘K</kbd></a>
     </nav>
 
     <div class="rail-footer">
-      <a routerLink="/people" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideUsers aria-hidden="true"></svg> People &amp; teams</a>
-      <a routerLink="/settings/profile" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideSettings aria-hidden="true"></svg> Profile &amp; timezone</a>
-      <a routerLink="/settings/processing" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideSparkles aria-hidden="true"></svg> Processing</a>
-      <a routerLink="/settings/data" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideDatabaseBackup aria-hidden="true"></svg> Data &amp; recovery</a>
-      <button type="button" (click)="logout()"><svg lucideLogOut aria-hidden="true"></svg> Sign out</button>
+      <a routerLink="/people" routerLinkActive="active" ariaCurrentWhenActive="page" aria-label="People and teams" title="People &amp; teams"><svg lucideUsers aria-hidden="true"></svg><span class="nav-label">People &amp; teams</span></a>
+      <a routerLink="/settings/profile" routerLinkActive="active" ariaCurrentWhenActive="page" aria-label="Profile and timezone" title="Profile &amp; timezone"><svg lucideSettings aria-hidden="true"></svg><span class="nav-label">Profile &amp; timezone</span></a>
+      <a routerLink="/settings/processing" routerLinkActive="active" ariaCurrentWhenActive="page" aria-label="Processing" title="Processing"><svg lucideSparkles aria-hidden="true"></svg><span class="nav-label">Processing</span></a>
+      <a routerLink="/settings/data" routerLinkActive="active" ariaCurrentWhenActive="page" aria-label="Data and recovery" title="Data &amp; recovery"><svg lucideDatabaseBackup aria-hidden="true"></svg><span class="nav-label">Data &amp; recovery</span></a>
+      <button type="button" aria-label="Sign out" title="Sign out" (click)="logout()"><svg lucideLogOut aria-hidden="true"></svg><span class="nav-label">Sign out</span></button>
     </div>
   </aside>
 

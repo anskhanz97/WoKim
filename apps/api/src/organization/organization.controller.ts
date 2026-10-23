@@ -125,6 +125,9 @@ export class OrganizationController {
   @Get('projects') async projects(@Query() query: ProjectQueryDto) {
     return paginate(await this.service.listProjects(query), query);
   }
+  @Get('all-projects') async allProjects() {
+    return { data: await this.service.listAllProjects() };
+  }
   @Post('projects') async createProject(
     @Body() input: CreateProjectDto,
     @Res({ passthrough: true }) response: Response,

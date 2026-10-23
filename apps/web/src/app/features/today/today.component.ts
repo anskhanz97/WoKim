@@ -3,11 +3,11 @@ import { Component, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
-import { Task, TodayView, WorkMemoryService } from '../../core/work-memory.service';
-import { LucideArrowRight, LucideAudioLines, LucideCalendarDays, LucideCamera, LucideCirclePause, LucideMessageCircleQuestionMark, LucidePlay, LucideSparkles, LucideZap } from '@lucide/angular';
+import { DailyActivity, Task, TodayView, WorkMemoryService } from '../../core/work-memory.service';
+import { LucideArrowRight, LucideAudioLines, LucideCalendarDays, LucideCamera, LucideCirclePause, LucideClock3, LucideFolderKanban, LucideListChecks, LucideMessageCircleQuestionMark, LucidePlay, LucideSparkles, LucideX, LucideZap } from '@lucide/angular';
 
 @Component({
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideArrowRight, LucideAudioLines, LucideCalendarDays, LucideCamera, LucideCirclePause, LucideMessageCircleQuestionMark, LucidePlay, LucideSparkles, LucideZap],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideArrowRight, LucideAudioLines, LucideCalendarDays, LucideCamera, LucideCirclePause, LucideClock3, LucideFolderKanban, LucideListChecks, LucideMessageCircleQuestionMark, LucidePlay, LucideSparkles, LucideX, LucideZap],
   templateUrl: './today.component.html',
   styleUrl: './today.component.scss',
 })
@@ -16,6 +16,8 @@ export class TodayComponent implements OnInit {
   readonly view = signal<TodayView | null>(null);
   readonly error = signal('');
   readonly saved = signal(false);
+  readonly historyTask = signal<Task | null>(null);
+  readonly historyTaskLoading = signal(false);
   readonly historyDate = new FormControl('', { nonNullable: true });
   readonly form = new FormGroup({
     intendedOutcome: new FormControl('', { nonNullable: true }),
@@ -36,9 +38,37 @@ export class TodayComponent implements OnInit {
     private readonly route: ActivatedRoute,
   ) {}
 
-  async ngOnInit() { await this.load(this.route.snapshot.paramMap.get('date') || undefined); }
+  ngOnInit() {
+    this.route.paramMap.subscribe((params) => void this.load(params.get('date') || undefined));
+  }
 
   isHistoric() { return Boolean(this.route.snapshot.paramMap.get('date')); }
+
+  activityLabel(value: string) {
+    return value.replaceAll('.', ' ').replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  activitySummary(activity: DailyActivity) {
+    return String(
+      activity.payload['title'] ||
+        activity.payload['reason'] ||
+        activity.payload['status'] ||
+        activity.entryTitle ||
+        activity.taskTitle ||
+        'This change was preserved in the work timeline.',
+    );
+  }
+
+  async openHistoryTask(taskId: string) {
+    this.historyTaskLoading.set(true);
+    try {
+      this.historyTask.set((await this.memory.task(taskId)).data);
+    } catch {
+      this.error.set('Task details could not be opened. Reload and try again.');
+    } finally {
+      this.historyTaskLoading.set(false);
+    }
+  }
 
   async load(date?: string) {
     this.error.set('');

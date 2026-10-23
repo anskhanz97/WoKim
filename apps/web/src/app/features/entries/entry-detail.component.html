@@ -65,8 +65,9 @@
         <p class="eyebrow">Read-only anchor</p><h2>Preserved source</h2>
         <dl class="source-meta"><div><dt>Source</dt><dd>{{item.sourceKind || 'capture'}}</dd></div>@if(item.sourceLabel){<div><dt>Label</dt><dd>{{item.sourceLabel}}</dd></div>}@if(item.occurredAt){<div><dt>Occurred</dt><dd>{{item.occurredAt | date:'medium'}}</dd></div>}@if(item.sourceUrl){<div><dt>Link</dt><dd><a [href]="item.sourceUrl" target="_blank" rel="noreferrer">Open source</a></dd></div>}</dl>
         <div class="add-files">
-          <label>Add image or audio files<input type="file" multiple accept="image/png,image/jpeg,image/webp,audio/wav,audio/mpeg,audio/mp4,audio/webm" (change)="chooseFiles($event)" /></label>
-          <button type="button" (click)="addAttachments()" [disabled]="uploading() || !selectedFiles.length">{{ uploading() ? 'Adding…' : 'Add files' }}</button>
+          <span class="add-files-title">Add image or audio files</span>
+          <label class="file-drop"><input type="file" multiple accept="image/png,image/jpeg,image/webp,audio/wav,audio/mpeg,audio/mp4,audio/webm" (change)="chooseFiles($event)" /><svg lucideImagePlus aria-hidden="true"></svg><span><strong>{{ selectedFiles.length ? selectedFiles.length + (selectedFiles.length === 1 ? ' file ready' : ' files ready') : 'Choose files' }}</strong><small>PNG, JPEG, WebP, WAV, MP3, MP4 or WebM</small></span></label>
+          <button type="button" (click)="addAttachments()" [disabled]="uploading() || !selectedFiles.length">{{ uploading() ? 'Adding…' : 'Add selected files' }}</button>
         </div>
         @if (item.originalText) {
           <pre>{{ item.originalText }}</pre>

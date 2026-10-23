@@ -1,0 +1,92 @@
+<section class="atlas-shell" [style.--focus-height]="focusHeight() + 'px'">
+  <header class="atlas-toolbar">
+    <button class="sidebar-toggle" type="button" [attr.aria-label]="sidebar.mode() === 'hidden' ? 'Show sidebar' : 'Hide sidebar'" [attr.title]="sidebar.mode() === 'hidden' ? 'Show sidebar (Esc)' : 'Hide sidebar'" aria-controls="primary-sidebar" [attr.aria-expanded]="sidebar.mode() !== 'hidden'" (click)="sidebar.toggleAtlas()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path [attr.d]="sidebar.mode() === 'hidden' ? 'm13 9 3 3-3 3' : 'm16 9-3 3 3 3'"/></svg>
+    </button>
+    <a class="atlas-brand" routerLink="/today" aria-label="WoKim home">
+      <span class="atlas-mark"><span></span></span>
+      <span>WoKim<small>project field</small></span>
+    </a>
+
+    <div class="metric-controls" aria-label="Bubble size metric">
+      <button type="button" [class.active]="metric() === 'tasks'" [attr.aria-pressed]="metric() === 'tasks'" (click)="setMetric('tasks')">Tasks</button>
+      <button type="button" [class.active]="metric() === 'activity'" [attr.aria-pressed]="metric() === 'activity'" (click)="setMetric('activity')">Activity</button>
+      <button type="button" [class.active]="metric() === 'recency'" [attr.aria-pressed]="metric() === 'recency'" (click)="setMetric('recency')">Recent</button>
+    </div>
+
+    <label class="count-control"><span>Projects</span><select [formControl]="countControl" aria-label="Project count"><option value="25">1–25</option><option value="50">1–50</option><option value="100">1–100</option></select></label>
+
+    <label class="atlas-search"><svg lucideSearch aria-hidden="true"></svg><input #projectSearch [formControl]="searchControl" placeholder="Search projects" aria-label="Search projects" /><kbd>Ctrl K</kbd></label>
+
+    <div class="view-controls" aria-label="Project view">
+      <button type="button" title="Bubble view" aria-label="Bubble view" [class.active]="view() === 'bubbles'" [attr.aria-pressed]="view() === 'bubbles'" (click)="view.set('bubbles')"><svg lucideCircleDot aria-hidden="true"></svg></button>
+      <button type="button" title="List view" aria-label="List view" [class.active]="view() === 'list'" [attr.aria-pressed]="view() === 'list'" (click)="view.set('list')"><svg lucideList aria-hidden="true"></svg></button>
+    </div>
+
+    <details class="filter-menu">
+      <summary title="Filter projects" aria-label="Filter projects"><svg lucideSlidersHorizontal aria-hidden="true"></svg></summary>
+      <div>
+        <strong>Project status</strong>
+        @for (option of ['all','active','completed','archived']; track option) {
+          <button type="button" [class.active]="status() === option" (click)="status.set(option)">{{ option }}</button>
+        }
+      </div>
+    </details>
+  </header>
+
+  <div class="atlas-stage">
+    <div class="stage-caption" aria-live="polite"><strong>{{ filteredProjects().length }}</strong> projects · sized by {{ metric() }}</div>
+
+    <div #bubbleField class="bubble-field" [hidden]="view() !== 'bubbles'" aria-label="Project bubble visualization">
+      @if (loading()) {
+        <div class="bubble-skeleton skeleton-one"></div><div class="bubble-skeleton skeleton-two"></div><div class="bubble-skeleton skeleton-three"></div><div class="bubble-skeleton skeleton-four"></div><div class="bubble-skeleton skeleton-five"></div>
+      } @else if (error()) {
+        <div class="atlas-state" role="alert"><svg lucideRotateCcw aria-hidden="true"></svg><h1>Project field unavailable</h1><p>{{ error() }}</p><button type="button" (click)="load()">Retry</button></div>
+      } @else if (!filteredProjects().length) {
+        <div class="atlas-state"><svg lucideSearch aria-hidden="true"></svg><h1>No projects match</h1><p>Clear the search or choose a different project status.</p><button type="button" (click)="searchControl.setValue(''); status.set('all')">Show all projects</button></div>
+      } @else {
+        @for (project of filteredProjects(); track project.id) {
+          <a
+            class="project-bubble"
+            [class]="'project-bubble tone-' + bubbleTone(project)"
+            [ngStyle]="bubbleStyle(project)"
+            [routerLink]="['/projects', project.id, 'overview']"
+            [title]="project.name + ' · ' + metricLabel(project) + ' · ' + relativeUpdated(project)"
+            [attr.aria-label]="'Open ' + project.name + ', ' + project.status + ', ' + metricLabel(project)"
+          >
+            <span class="bubble-glint" aria-hidden="true"></span>
+            <span class="bubble-logo" aria-hidden="true">{{ project.name.slice(0, 1).toUpperCase() }}</span>
+            <strong>{{ project.name }}</strong>
+            <span class="bubble-value">{{ metricLabel(project) }}</span>
+            <small>{{ project.status }}</small>
+          </a>
+        }
+      }
+    </div>
+
+    <div class="project-list" [hidden]="view() !== 'list'">
+      @if (loading()) {
+        <div class="table-skeleton"></div><div class="table-skeleton"></div><div class="table-skeleton"></div>
+      } @else if (error()) {
+        <div class="atlas-state" role="alert"><h1>Project list unavailable</h1><p>{{ error() }}</p><button type="button" (click)="load()">Retry</button></div>
+      } @else if (!filteredProjects().length) {
+        <div class="atlas-state"><h1>No projects match</h1><p>Clear the search or choose a different project status.</p></div>
+      } @else {
+        <table>
+          <thead><tr><th><button type="button" (click)="sortBy('name')">Project <svg lucideArrowUpDown aria-hidden="true"></svg></button></th><th><button type="button" (click)="sortBy('status')">Status <svg lucideArrowUpDown aria-hidden="true"></svg></button></th><th><button type="button" (click)="sortBy('metric')">{{ metric() }} <svg lucideArrowUpDown aria-hidden="true"></svg></button></th><th><button type="button" (click)="sortBy('updated')">Updated <svg lucideArrowUpDown aria-hidden="true"></svg></button></th><th><span class="sr-only">Actions</span></th></tr></thead>
+          <tbody>
+            @for (project of sortedProjects(); track project.id) {
+              <tr>
+                <td><span class="list-logo" [class]="'list-logo tone-' + bubbleTone(project)">{{ project.name.slice(0, 1).toUpperCase() }}</span><span><strong>{{ project.name }}</strong><small>{{ project.description || 'No description recorded.' }}</small></span></td>
+                <td><span class="table-status" [class]="'table-status tone-' + bubbleTone(project)">{{ project.status }}</span></td>
+                <td>{{ metricLabel(project) }}</td>
+                <td>{{ project.updatedAt | date:'mediumDate' }}</td>
+                <td><a [routerLink]="['/projects',project.id,'overview']">Open workspace</a><a [routerLink]="['/projects',project.id,'people']">People</a></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
+</section>

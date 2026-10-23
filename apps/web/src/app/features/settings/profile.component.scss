@@ -51,7 +51,7 @@ input {
   margin-bottom: 1rem;
   padding: 0 0.75rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 0.3rem;
+  border-radius: var(--radius-sm);
   font: inherit;
 }
 input:focus {
@@ -104,7 +104,7 @@ article span {
 }
 article button {
   border: 1px solid var(--rule-strong);
-  border-radius: 0.3rem;
+  border-radius: var(--radius-sm);
   background: white;
   min-height: 2.4rem;
   padding: 0 0.75rem;

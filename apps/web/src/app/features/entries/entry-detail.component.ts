@@ -13,9 +13,10 @@ import {
   WorkMemoryService,
 } from '../../core/work-memory.service';
 import { PromptDialogService } from '../../core/prompt-dialog.service';
+import { LucideImagePlus } from '@lucide/angular';
 
 @Component({
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideImagePlus],
   templateUrl: './entry-detail.component.html',
   styleUrl: './entry-detail.component.scss',
 })
