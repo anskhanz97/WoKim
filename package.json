@@ -30,7 +30,8 @@
     "db:revert": "npm run db:revert --workspace @wokim/api",
     "owner:bootstrap": "npm run owner:bootstrap --workspace @wokim/api",
     "owner:reset": "npm run owner:reset --workspace @wokim/api",
-    "db:seed:showcase": "npm run db:seed:showcase --workspace @wokim/api"
+    "db:seed:showcase": "npm run db:seed:showcase --workspace @wokim/api",
+    "db:restore:showcase": "powershell -ExecutionPolicy Bypass -File ./infra/scripts/restore-showcase.ps1"
   },
   "devDependencies": {
     "playwright": "^1.56.1"

@@ -33,11 +33,13 @@ The Angular development server proxies `/api` to `http://localhost:3000`. No pub
 The showcase is isolated from the live database and keeps its database, attachments, thumbnails, model cache, and temporary files on `D:`.
 
 ```powershell
-npm run db:seed:showcase
+npm run db:restore:showcase
 ./infra/scripts/start-showcase.ps1
 ```
 
-Open `http://localhost:4300` and sign in with the same owner credentials as the live installation. The showcase runs MariaDB on port 3308, its API on 3100, and its web client on 4300. Re-running the seed command replaces only the dedicated `wokim_showcase` database and showcase private storage.
+Open `http://localhost:4300` and sign in with `showcase@wokim.local` / `WokimShowcase2026!`. The versioned snapshot includes the populated records, attachment originals, thumbnails, OCR text, and evidence. It contains no live owner credentials or browser sessions. The showcase runs MariaDB on port 3308, its API on 3100, and its web client on 4300. Re-running the restore command replaces only the dedicated `wokim_showcase` database and showcase private storage under `D:`.
+
+Use `npm run db:seed:showcase` only when intentionally rebuilding a new showcase from the local live owner and source images.
 
 After replacing the collection's local owner credentials, run the Phase 1 API smoke flow with:
 

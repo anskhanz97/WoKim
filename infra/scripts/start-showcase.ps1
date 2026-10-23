@@ -32,7 +32,7 @@ if (-not (Test-Port 3308)) {
   $databaseRoot = Join-Path $workspace 'storage\showcase-mariadb'
   $databaseConfig = Join-Path $databaseRoot 'my.ini'
   if (-not (Test-Path -LiteralPath $databaseConfig)) {
-    throw 'Showcase data is not initialized. Run npm run db:seed:showcase first.'
+    throw 'Showcase data is not initialized. Run npm run db:restore:showcase first.'
   }
   Start-Process -FilePath 'C:\xampp\mysql\bin\mysqld.exe' -ArgumentList @("--defaults-file=$databaseConfig") -WorkingDirectory $workspace -WindowStyle Hidden
   for ($attempt = 0; $attempt -lt 20 -and -not (Test-Port 3308); $attempt++) { Start-Sleep -Milliseconds 500 }
