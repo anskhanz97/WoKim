@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Confirmed by user: WoKim uses an Angular frontend, Node.js + NestJS backend, MySQL database, and privately hosted access from laptop and phone. Supporting implementation decisions are delegated; see the decisions document.
+Confirmed by user: WoKim uses an Angular frontend, Node.js + NestJS backend, and a local XAMPP-compatible database. The current target is the user's PC; hosting is deliberately outside this build.
 
 ## Users
 
@@ -33,9 +33,9 @@ Work arrives in meetings, typed notes, Slack or other DMs/channels, screenshots,
 - Today both asks and helps answer: current work, interrupted work, upcoming deadlines, and unanswered questions.
 - Separate projects, tasks, people/teams, decisions, and work checkpoints while keeping them connected.
 - Mobile usability, fast loading, persistent data, and low administrative effort are priorities.
-- Host privately with authentication, durable storage, and restorable backups.
+- Run privately on the local PC with authentication, D:-resident durable storage, and restorable local backups.
 - No dependency on paid AI services for core operation.
-- Planning only at this stage; implementation follows this package.
+- The implementation is active and verified locally; this package now records the running-PC target.
 
 ## Evidence on hand
 
@@ -54,6 +54,6 @@ The user's workflow description and accepted product/stack choices in the planni
 - Default single-owner installation with no public signup; chosen for the personal-use scope.
 - English interface initially; user timezone is configurable, with Asia/Karachi suggested only during this user's setup.
 - Plain text notes with safe link rendering initially; rich text is optional future work.
-- Host, budget, domain, transcription languages, and sample audio remain unselected.
+- Transcription languages and representative sample audio remain user-selectable.
 - Visual branding remains open. Functional screen specifications are planned; a final visual identity is not claimed to be approved.
 - Accessibility target proposed: WCAG 2.2 AA for core journeys.

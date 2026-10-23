@@ -7,7 +7,7 @@ WoKim is a private work memory for developers. It preserves incoming requests an
 - Angular 21 LTS frontend
 - NestJS 11 on Node.js 24
 - TypeORM 1 with `mysql2`
-- MySQL 8.4 LTS in production; MariaDB 10.4 through XAMPP is supported for local review only
+- MariaDB 10.4 through XAMPP for the local application; portable MySQL 8.4 is retained only for compatibility testing
 
 ## Workspace
 
@@ -15,19 +15,29 @@ WoKim is a private work memory for developers. It preserves incoming requests an
 apps/web/   Angular client
 apps/api/   NestJS API
 docs/       product and implementation plan
-infra/      deployment and recovery assets
+infra/      local database, backup, and recovery scripts
 ```
 
 ## Local setup
 
-1. Run XAMPP's MySQL service.
-2. Create the local database and restricted app user with `./infra/scripts/xampp-init.ps1 -AppPassword '<your local database password>'`. Add `-RootPassword '<root password>'` if the local root account has one.
-3. Copy `.env.example` to `.env`, put the same application password in `DB_PASSWORD`, and replace both development secret placeholders.
-4. Run `npm install`, then `npm run db:migrate`.
-5. Run `npm run owner:bootstrap` and enter the owner details.
-6. Start `npm run dev:api` and `npm run dev:web` in separate terminals.
+1. Start the isolated development database with `./infra/scripts/start-d-drive-mariadb.ps1`. It uses XAMPP's MariaDB binaries but keeps all WoKim database files under `D:\Code\5. Projects\WoKim\storage\mariadb` on port 3307.
+2. Copy `.env.example` to `.env`, put the local credentials in it, set `DB_PORT=3307`, use an absolute `D:` path for `PRIVATE_STORAGE_ROOT`, and replace both development secret placeholders.
+3. Run `npm install`, then `npm run db:migrate`.
+4. Run `npm run owner:bootstrap` and enter the owner details.
+5. Start `npm run dev:api` and `npm run dev:web` in separate terminals.
 
 The Angular development server proxies `/api` to `http://localhost:3000`. No public signup route exists.
+
+## Realistic showcase workspace
+
+The showcase is isolated from the live database and keeps its database, attachments, thumbnails, model cache, and temporary files on `D:`.
+
+```powershell
+npm run db:seed:showcase
+./infra/scripts/start-showcase.ps1
+```
+
+Open `http://localhost:4300` and sign in with the same owner credentials as the live installation. The showcase runs MariaDB on port 3308, its API on 3100, and its web client on 4300. Re-running the seed command replaces only the dedicated `wokim_showcase` database and showcase private storage.
 
 After replacing the collection's local owner credentials, run the Phase 1 API smoke flow with:
 
@@ -35,6 +45,6 @@ After replacing the collection's local owner credentials, run the Phase 1 API sm
 postman collection run postman/wokim-phase-1.postman_collection.json
 ```
 
-See [the implementation plan](docs/README.md) and [the current development checklist](docs/07-DEVELOPMENT-PLAN.md).
+See [the implementation plan](docs/README.md), [operations runbook](docs/18-OPERATIONS-RUNBOOK.md), [user guide](docs/19-USER-GUIDE.md), and [current release evidence](docs/20-PHASE-8-PROGRESS.md).
 
-The committed Phase 1 OpenAPI contract is `docs/api/openapi.json`. `ng-openapi-gen` regenerates the ignored Angular client before frontend start, lint, test, and build commands.
+The committed live OpenAPI contract is `docs/api/openapi.json`. `ng-openapi-gen` regenerates the ignored Angular client before frontend start, lint, test, and build commands.

@@ -7,6 +7,7 @@ import type { ApiError, OwnerSession } from '../../core/auth/auth.models';
 
 @Component({ imports: [ReactiveFormsModule, DatePipe], templateUrl: './profile.component.html', styleUrl: './profile.component.scss' })
 export class ProfileComponent implements OnInit {
+  readonly timezones = typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : ['UTC'];
   readonly sessions = signal<OwnerSession[]>([]);
   readonly message = signal(''); readonly error = signal(''); readonly saving = signal(false);
   readonly profileForm; readonly passwordForm;

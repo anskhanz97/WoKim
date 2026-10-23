@@ -9,6 +9,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Res,
 } from '@nestjs/common';
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -20,6 +21,7 @@ import { CurrentSession } from '../auth/current-session.decorator';
 import { ChangePasswordDto } from '../auth/dto/change-password.dto';
 import { UpdateProfileDto } from '../auth/dto/update-profile.dto';
 import { entityTag, parseIfMatch } from '../common/http-version';
+import { ListQueryDto, paginate } from '../common/pagination';
 import type { SessionEntity } from '../database/entities/session.entity';
 import type { UserEntity } from '../database/entities/user.entity';
 import { MeService } from './me.service';
@@ -102,11 +104,13 @@ export class MeController {
   async listSessions(
     @CurrentOwner() owner: UserEntity,
     @CurrentSession() current: SessionEntity,
+    @Query() query: ListQueryDto,
   ) {
     const sessions = await this.auth.listSessions(owner.id);
-    return {
-      data: sessions.map((session) => sessionView(session, current.id)),
-    };
+    return paginate(
+      sessions.map((session) => sessionView(session, current.id)),
+      query,
+    );
   }
 
   @Delete('sessions/:id')

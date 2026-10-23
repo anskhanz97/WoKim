@@ -6,8 +6,8 @@
     <div class="section-copy"><h2>Your profile</h2><p>Timezone controls how WoKim groups daily check-ins and date-only deadlines.</p></div>
     <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
       <label for="display-name">Display name</label><input id="display-name" formControlName="displayName" autocomplete="name" />
-      <label for="timezone">Timezone</label><input id="timezone" formControlName="timezone" aria-describedby="timezone-help" />
-      <small id="timezone-help">Use an IANA name such as Asia/Karachi or Europe/London.</small><button type="submit" [disabled]="saving()">Save profile</button>
+      <label for="timezone">Home timezone</label><input id="timezone" formControlName="timezone" list="timezone-list" aria-describedby="timezone-help" autocomplete="off" /><datalist id="timezone-list">@for(timezone of timezones;track timezone){<option [value]="timezone"></option>}</datalist>
+      <small id="timezone-help">Dates, deadlines, and daily check-ins use this timezone. Start typing a city, such as Karachi or London.</small><button type="submit" [disabled]="saving()">Save profile</button>
     </form>
   </section>
   <section>
@@ -22,7 +22,7 @@
     <div class="section-copy"><h2>Active sessions</h2><p>Revoke access from a device you no longer use.</p></div>
     <div class="session-list">
       @for (session of sessions(); track session.id) {
-        <article><div><strong>{{ session.deviceLabel || 'Unknown browser' }}</strong><span>{{ session.current ? 'Current session' : 'Last seen ' + (session.lastSeenAt | date:'medium') }}</span></div>
+        <article [class.current]="session.current"><div><strong>{{ session.deviceLabel || 'Unknown browser' }}</strong><span>{{ session.current ? 'Current session · this device' : 'Last seen ' + (session.lastSeenAt | date:'medium') }}</span></div>
         @if (!session.revokedAt) { <button type="button" (click)="revoke(session)">{{ session.current ? 'Sign out' : 'Revoke' }}</button> }</article>
       } @empty { <p>No active sessions were found.</p> }
     </div>

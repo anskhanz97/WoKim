@@ -10,6 +10,12 @@ const integer = (name: string, fallback: number): number => {
   return parsed;
 };
 
+const percent = (name: string, fallback: number): number => {
+  const value = integer(name, fallback);
+  if (value > 99) throw new Error(`${name} must be between 1 and 99`);
+  return value;
+};
+
 export const environment = () => {
   const configuredDatabaseType = process.env.DB_TYPE ?? 'mysql';
   if (
@@ -53,6 +59,16 @@ export const environment = () => {
       absoluteDays: integer('SESSION_ABSOLUTE_DAYS', 30),
     },
     storageRoot: process.env.PRIVATE_STORAGE_ROOT ?? './storage/private',
+    storageUploadStopPercent: percent('STORAGE_UPLOAD_STOP_PERCENT', 95),
+    storageMinimumFreeBytes: integer(
+      'STORAGE_MINIMUM_FREE_BYTES',
+      1024 * 1024 * 1024,
+    ),
+    modelCacheRoot: process.env.MODEL_CACHE_ROOT ?? './storage/models',
+    retention: {
+      exportHours: integer('EXPORT_RETENTION_HOURS', 24),
+      trashDays: integer('TRASH_RETENTION_DAYS', 30),
+    },
   };
 };
 

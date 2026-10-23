@@ -1,0 +1,85 @@
+<div class="page">
+  <a routerLink="/projects" class="back">← Projects</a>
+  <header>
+    <div>
+      <p>{{ project()?.name || 'Project' }}</p>
+      <h1>Tasks</h1>
+    </div>
+    <button type="button" (click)="adding.set(!adding())">
+      {{ adding() ? 'Cancel' : '+ New task' }}
+    </button>
+  </header>
+  <app-project-nav [projectId]="projectId" />
+  @if (adding()) {
+    <form [formGroup]="form" (ngSubmit)="create()">
+      <label>Title<input formControlName="title" maxlength="240" autofocus /></label
+      ><label>Description<textarea formControlName="description" rows="4"></textarea></label
+      ><label
+        >Type<select formControlName="type">
+          <option value="bug">Bug</option>
+          <option value="feature">Feature</option>
+          <option value="change">Change</option>
+          <option value="testing">Testing</option>
+          <option value="integration">Integration</option>
+          <option value="investigation">Investigation</option>
+          <option value="chore">Chore</option>
+        </select></label
+      ><label
+        >Priority<select formControlName="priority">
+          <option value="low">Low</option>
+          <option value="normal">Normal</option>
+          <option value="high">High</option>
+          <option value="urgent">Urgent</option>
+        </select></label
+      ><label
+        >Requester<select formControlName="requestedByPersonId">
+          <option value="">None</option>
+          @for (person of people(); track person.id) {
+            <option [value]="person.id">{{ person.displayName }}</option>
+          }
+        </select></label
+      ><label>Next action<input formControlName="nextAction" /></label
+      ><label
+        >Deadline type<select formControlName="deadlineKind">
+          <option value="target">Target</option>
+          <option value="hard">Hard</option>
+        </select></label
+      ><label>Due date<input type="date" formControlName="dueDate" /></label
+      ><button type="submit">Create task</button>
+    </form>
+  }
+  <div class="filter-bar"><label>Status<select [formControl]="status" (change)="reload()"><option value="">All statuses</option><option value="ready">Ready</option><option value="in_progress">In progress</option><option value="paused">Paused</option><option value="waiting">Waiting</option><option value="done">Done</option><option value="cancelled">Cancelled</option></select></label><details><summary>More filters</summary><div class="filters">
+    <label
+      >Type<select [formControl]="type" (change)="reload()"><option value="">All</option><option value="bug">Bug</option><option value="feature">Feature</option><option value="change">Change</option><option value="testing">Testing</option><option value="integration">Integration</option><option value="investigation">Investigation</option><option value="chore">Chore</option></select></label>
+    <label>Priority<select [formControl]="priority" (change)="reload()"><option value="">All</option><option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select></label>
+    <label>Due from<input type="date" [formControl]="dueFrom" (change)="reload()"/></label>
+    <label>Due to<input type="date" [formControl]="dueTo" (change)="reload()"/></label>
+  </div></details></div>
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+  <ol>
+    @for (task of tasks(); track task.id) {
+      <li>
+        <a [routerLink]="['/tasks', task.id]"
+          ><div>
+            <span>{{ task.type }}</span
+            ><strong>{{ task.priority }}</strong>
+          </div>
+          <h2>{{ task.title }}</h2>
+          <p>{{ task.nextAction || task.description || 'No next action yet.' }}</p>
+          <footer>
+            <span>{{ task.status }}</span>
+            @if (task.deadline?.date) {
+              <time
+                >{{ task.deadline?.kind }} · {{ task.deadline?.date | date: 'mediumDate' }}</time
+              >
+            }
+          </footer></a
+        >
+      </li>
+    } @empty {
+      <li class="empty">No tasks match this view.</li>
+    }
+  </ol>
+</div>

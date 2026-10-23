@@ -1,37 +1,79 @@
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="shell">
   <aside class="rail" aria-label="Primary navigation">
     <a class="brand" routerLink="/today" aria-label="WoKim home">
-      <span class="brand-mark">W</span>
-      <span>WoKim</span>
+      <span class="brand-mark"><span></span></span>
+      <span class="brand-name">WoKim<small>work memory</small></span>
     </a>
 
     <nav>
-      <a routerLink="/today" routerLinkActive="active"><span aria-hidden="true">◉</span> Today</a>
-      <span class="coming"><span aria-hidden="true">▤</span> Inbox <small>soon</small></span>
-      <span class="coming"><span aria-hidden="true">□</span> Projects <small>soon</small></span>
-      <span class="coming"><span aria-hidden="true">⌕</span> Search <small>soon</small></span>
+      <a routerLink="/today" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideHouse aria-hidden="true"></svg> Today</a>
+      <a routerLink="/inbox" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideInbox aria-hidden="true"></svg> Inbox <span class="nav-glow"></span></a>
+      <a routerLink="/projects" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideFolderKanban aria-hidden="true"></svg> Projects</a>
+      <a routerLink="/search" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideSearch aria-hidden="true"></svg> Search <kbd>⌘K</kbd></a>
     </nav>
 
     <div class="rail-footer">
-      <a routerLink="/settings/profile" routerLinkActive="active">Settings</a>
-      <button type="button" (click)="logout()">Sign out</button>
+      <a routerLink="/people" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideUsers aria-hidden="true"></svg> People &amp; teams</a>
+      <a routerLink="/settings/profile" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideSettings aria-hidden="true"></svg> Profile &amp; timezone</a>
+      <a routerLink="/settings/processing" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideSparkles aria-hidden="true"></svg> Processing</a>
+      <a routerLink="/settings/data" routerLinkActive="active" ariaCurrentWhenActive="page"><svg lucideDatabaseBackup aria-hidden="true"></svg> Data &amp; recovery</a>
+      <button type="button" (click)="logout()"><svg lucideLogOut aria-hidden="true"></svg> Sign out</button>
     </div>
   </aside>
 
   <header class="mobile-header">
-    <a class="brand" routerLink="/today"><span class="brand-mark">W</span><span>WoKim</span></a>
+    <a class="brand" routerLink="/today"><span class="brand-mark"><span></span></span><span>WoKim</span></a>
     <a class="avatar" routerLink="/settings/profile" aria-label="Open profile settings">
       {{ auth.owner()?.displayName?.slice(0, 1) || 'W' }}
     </a>
   </header>
 
-  <main id="main-content"><router-outlet /></main>
+  <main id="main-content">
+    @if (memory.focus().task; as task) {
+      <section class="focus-strip" aria-label="Current focus">
+        <span>Working now</span>
+        <a [routerLink]="['/tasks', task.id]">{{ task.title }}</a>
+        <div class="focus-actions">
+          <button type="button" (click)="openFocusDialog('pause')">Pause</button>
+          <button type="button" (click)="openFocusDialog('wait')">Wait</button>
+          <button type="button" (click)="openFocusDialog('finish')">Finish</button>
+        </div>
+      </section>
+    }
+    <router-outlet />
+  </main>
 
   <nav class="mobile-nav" aria-label="Primary navigation">
-    <a routerLink="/today" routerLinkActive="active">Today</a>
-    <span>Inbox</span>
-    <button type="button" disabled aria-label="Capture will arrive in Phase 2">+</button>
-    <span>Projects</span>
-    <a routerLink="/settings/profile" routerLinkActive="active">Settings</a>
+    <a routerLink="/today" routerLinkActive="active" ariaCurrentWhenActive="page">Today</a>
+    <a routerLink="/inbox" routerLinkActive="active" ariaCurrentWhenActive="page">Inbox</a>
+    <button type="button" data-capture-trigger (click)="openCapture()" aria-label="Open capture"><svg lucidePlus aria-hidden="true"></svg></button>
+    <a routerLink="/projects" routerLinkActive="active" ariaCurrentWhenActive="page">Projects</a>
+    <button type="button" class="more-trigger" (click)="openMore()"><svg lucideEllipsis aria-hidden="true"></svg><span>More</span></button>
   </nav>
 </div>
+<app-capture />
+<app-prompt-dialog />
+
+<dialog #resumeDialog class="resume-dialog" (cancel)="resumeDialog.close()">
+  <form [formGroup]="resumeForm" (ngSubmit)="saveFocusChange()">
+    <header><p class="eyebrow">Leave a clean handoff</p><h2>{{ focusAction() === 'finish' ? 'Finish this work' : focusAction() === 'wait' ? 'Mark this as waiting' : 'Pause and return later' }}</h2></header>
+    <p>Capture the thread while it is fresh. You can leave either field blank.</p>
+    <label>Where you stopped<textarea formControlName="checkpoint" rows="4" placeholder="What changed, what you tried, or what remains uncertain"></textarea></label>
+    @if (focusAction() !== 'finish') {<label>Next action<input formControlName="nextAction" placeholder="The smallest useful step when you return" /></label>}
+    @if (focusError()) {<p class="dialog-error" role="alert">{{ focusError() }}</p>}
+    <footer><button type="button" class="secondary" (click)="resumeDialog.close()">Keep working</button><button type="submit" [disabled]="focusSaving()">{{ focusSaving() ? 'Saving…' : 'Save & ' + (focusAction() === 'finish' ? 'finish' : focusAction()) }}</button></footer>
+  </form>
+</dialog>
+
+<dialog #moreDialog class="more-dialog" (click)="$event.target === moreDialog && closeMore()">
+  <header><div><p class="eyebrow">Navigate</p><h2>More</h2></div><button type="button" (click)="closeMore()" aria-label="Close menu">×</button></header>
+  <nav aria-label="More navigation">
+    <a routerLink="/search" (click)="closeMore()">Search</a>
+    <a routerLink="/people" (click)="closeMore()">People &amp; teams</a>
+    <a routerLink="/settings/profile" (click)="closeMore()">Profile &amp; timezone</a>
+    <a routerLink="/settings/processing" (click)="closeMore()">Processing</a>
+    <a routerLink="/settings/data" (click)="closeMore()">Data &amp; recovery</a>
+    <button type="button" (click)="closeMore(); logout()">Sign out</button>
+  </nav>
+</dialog>

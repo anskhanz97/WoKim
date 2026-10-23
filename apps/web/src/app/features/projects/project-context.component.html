@@ -1,0 +1,110 @@
+<div class="page">
+  <a routerLink="/projects" class="back">← Projects</a>
+  <header>
+    <div>
+      <p>Project workspace</p>
+      <h1>{{ mode === 'overview' ? 'Overview' : mode === 'history' ? 'History' : mode === 'decisions' ? 'Instructions & decisions' : mode === 'evidence' ? 'Visual evidence' : 'People & teams' }}</h1>
+    </div>
+  </header>
+  <app-project-nav [projectId]="projectId" />
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+  @if (mode === 'overview') {
+    @if (overview(); as data) {
+      <section><h2>{{ data.project.name }}</h2><p>{{ data.project.description || 'No description.' }}</p>@if(data.project.targetDate){<p><strong>Target:</strong> {{data.project.targetDate | date:'mediumDate'}}</p>}</section>
+      <details><summary>Edit project details</summary><form [formGroup]="projectForm" (ngSubmit)="saveProject()"><label>Name<input formControlName="name" maxlength="180"/></label><label>Description<textarea formControlName="description" rows="4"></textarea></label><label>Target date<input type="date" formControlName="targetDate"/></label><label>Repository URL<input type="url" formControlName="repositoryUrl" maxlength="2048" placeholder="https://…"/></label><button type="submit" [disabled]="saving() || projectForm.invalid">Save project</button></form></details>
+      <section><h2>Resume point</h2>@if(data.lastCheckpoint;as checkpoint){<p><a [routerLink]="['/entries',checkpoint.id]">{{checkpoint.title || 'Latest checkpoint'}}</a></p><p>{{checkpoint.contentText || 'No checkpoint note.'}}</p>}@else{<p>No checkpoint recorded.</p>}</section>
+      <section><h2>Current tasks</h2><ol>@for(task of data.currentTasks;track task.id){<li><a [routerLink]="['/tasks',task.id]">{{task.title}}</a><span>{{task.status}}</span><p>{{task.nextAction || 'No next action.'}}</p></li>}@empty{<li>No open tasks.</li>}</ol></section>
+      <section><h2>Open questions</h2><ol>@for(followUp of data.openFollowUps;track followUp.id){<li><strong>{{followUp.question}}</strong><span>{{followUp.followUpOn || 'No follow-up date'}}</span></li>}@empty{<li>No open questions.</li>}</ol></section>
+      <section><h2>Task state</h2>@for(count of data.taskCounts;track count.status){<p>{{count.status}} · {{count.count}}</p>}</section>
+      <section><h2>Recent changes</h2><ol>@for(event of data.recent;track event.id){<li><strong>{{eventLabel(event.eventType)}}</strong><time>{{event.createdAt | date:'medium'}}</time></li>}@empty{<li>No recent changes.</li>}</ol></section>
+      <section><h2>Recent decisions</h2>@for(item of data.decisions;track item.id){<p><a [routerLink]="['/entries',item.id]">{{item.title||item.contentText||'Untitled'}}</a></p>}@empty{<p>None.</p>}</section>
+      <section><h2>People</h2>@for(person of data.people;track person.id){<p>{{person.displayName}} {{person.roleLabel||''}}</p>}@empty{<p>No linked people.</p>}</section>
+    }
+  } @else if (mode === 'decisions') {
+    <form (ngSubmit)="linkReplacement()">
+      <h2>Record a replacement</h2>
+      <label>New instruction or decision<select [formControl]="newerId">
+        <option value="">Choose newer entry</option>
+        @for (item of decisions(); track item.id) {
+          <option [value]="item.id">{{ item.title || item.contentText || item.id }}</option>
+        }
+      </select></label>
+      <label>Entry it replaces<select [formControl]="olderId">
+        <option value="">Choose older entry</option>
+        @for (item of decisions(); track item.id) {
+          <option [value]="item.id">{{ item.title || item.contentText || item.id }}</option>
+        }
+      </select></label>
+      <label>Reason<input [formControl]="reason" maxlength="10000" /></label>
+      <button type="submit" [disabled]="saving() || !newerId.value || !olderId.value">Save link</button>
+    </form>
+    <ol>
+      @for (item of decisions(); track item.id) {
+        <li>
+          <a [routerLink]="['/entries', item.id]"><strong>{{ item.title || 'Untitled' }}</strong></a>
+          <p>{{ item.contentText }}</p>
+          @if (item.replacedBy; as successor) {
+            <small>Replaced by <a [routerLink]="['/entries', successor.id]">{{ successor.id }}</a></small>
+          }
+          @for (predecessor of item.replaces || []; track predecessor.id) {
+            <small>Replaces <a [routerLink]="['/entries', predecessor.id]">{{ predecessor.id }}</a>@if (predecessor.reason) { — {{ predecessor.reason }} }</small>
+          }
+        </li>
+      } @empty {
+        <li>No instructions or decisions yet.</li>
+      }
+    </ol>
+  } @else if (mode === 'history') {
+    <form (ngSubmit)="reload()"><label>From<input type="date" [formControl]="from"/></label><label>To<input type="date" [formControl]="to"/></label><button type="submit">Apply</button><button type="button" (click)="range(1)">Day</button><button type="button" (click)="range(7)">Week</button><button type="button" (click)="range(31)">Month</button></form>
+    <ol>
+      @for (event of history(); track event.id) {
+        <li>
+          <strong>{{ eventLabel(event.eventType) }}</strong>
+          <time>{{ event.createdAt | date: 'medium' }}</time>
+          @if (event.taskId) { <a [routerLink]="['/tasks', event.taskId]">Open task</a> }
+          @if (event.entryId) { <a [routerLink]="['/entries', event.entryId]">Open source</a> }
+        </li>
+      } @empty {
+        <li>No recorded project activity.</li>
+      }
+    </ol>
+  } @else if (mode === 'evidence') {
+    @if (project(); as item) { <h2>{{ item.name }}</h2> }
+    <form class="evidence-create" (ngSubmit)="createEvidence()">
+      <label>Task<select [formControl]="evidenceTaskId"><option value="">Choose a task</option>@for(task of tasks();track task.id){<option [value]="task.id">{{task.title}}</option>}</select></label>
+      <label>Comparison title<input [formControl]="evidenceTitle" maxlength="240" /></label>
+      <button type="submit" [disabled]="saving() || !evidenceTaskId.value || !evidenceTitle.value.trim()">Add evidence set</button>
+    </form>
+    <div class="evidence-list">
+      @for (set of evidence(); track set.id) {
+        <article class="evidence-set">
+          <header><div><h3>{{ set.title }}</h3><p>{{ set.notes || 'No comparison notes.' }}</p></div><a [routerLink]="['/tasks', set.taskId]">Edit on task</a></header>
+          <div class="comparison">
+            @for (side of ['before', 'after', 'reference']; track side) {
+              <section><strong>{{ side }}</strong>
+                @for (item of set.items; track item.id) {
+                  @if (item.side === side) { <figure><img [src]="imageUrl(item.attachmentId)" [alt]="item.caption || side + ' evidence'"/><figcaption>{{ item.caption || item.viewportLabel || 'Unlabelled image' }}</figcaption></figure> }
+                } @empty { <p>No {{ side }} image.</p> }
+              </section>
+            }
+          </div>
+        </article>
+      } @empty { <p>No evidence sets in this project. Add one from a task.</p> }
+    </div>
+  } @else {
+    @if (project(); as item) { <h2>{{ item.name }}</h2> }
+    <div class="association-controls">
+      <label>Person<select [formControl]="personId"><option value="">Choose a person</option>@for(person of people();track person.id){<option [value]="person.id">{{person.displayName}}</option>}</select></label>
+      <label>Role label<input [formControl]="roleLabel" maxlength="120" placeholder="Optional" /></label>
+      <button type="button" (click)="addPerson()" [disabled]="!personId.value">Add person</button>
+      <label>Team<select [formControl]="teamId"><option value="">Choose a team</option>@for(team of teams();track team.id){<option [value]="team.id">{{team.name}}</option>}</select></label>
+      <button type="button" (click)="addTeam()" [disabled]="!teamId.value">Add team</button>
+    </div>
+    @if (associations(); as links) {
+      <section><h3>People</h3><ol>@for(person of links.people;track person.id){<li><a [routerLink]="['/people',person.id]">{{person.displayName}}</a><span>{{person.roleLabel || 'No role label'}}</span><button type="button" (click)="removePerson(person.id)">Remove</button></li>}@empty{<li>No people linked.</li>}</ol></section>
+      <section><h3>Teams</h3><ol>@for(team of links.teams;track team.id){<li><strong>{{team.name}}</strong><button type="button" (click)="removeTeam(team.id)">Remove</button></li>}@empty{<li>No teams linked.</li>}</ol></section>
+    }
+  }
+</div>

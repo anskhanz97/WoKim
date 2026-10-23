@@ -1,0 +1,28 @@
+<dialog #dialog class="capture" aria-labelledby="capture-title" (cancel)="cancel($event)">
+  @if (memory.captureOpen()) {
+    <header><div><p class="eyebrow">Quick capture</p><h2 id="capture-title">Drop it into your memory.</h2><p>Ideas, evidence and voice—safe now, organized when you are ready.</p></div><button type="button" class="close" (click)="close()" aria-label="Close capture"><svg lucideX aria-hidden="true"></svg></button></header>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <label class="note-field">Note <span>Write, paste, or describe what matters.</span><textarea #noteInput formControlName="contentText" rows="7" autofocus placeholder="A request, decision, question, or next step…"></textarea></label>
+      <div class="capture-tools" aria-label="Add to capture">
+        <label class="file-button"><svg lucidePaperclip aria-hidden="true"></svg> Attach files<input type="file" multiple accept="image/jpeg,image/png,image/webp,audio/*" (change)="choose($event)" /></label>
+        @if (!recording()) { <button type="button" class="secondary" (click)="startRecording()" [disabled]="!recordingSupported"><svg lucideMic aria-hidden="true"></svg> Record voice</button> }
+        @else { <button type="button" class="stop" (click)="stopRecording()">Stop recording</button><span role="status">Recording…</span> }
+      </div>
+      @if (recordedUrl()) { <div class="audio-row"><audio [src]="recordedUrl()" controls></audio><button type="button" class="text-button" (click)="discardRecording()">Discard</button></div> }
+      @if (!recordingSupported) { <small>Voice recording is unavailable here; audio upload still works.</small> }
+      @if (files().length) {<ul class="file-list" aria-label="Selected files">@for (file of files(); track file.name + $index) {<li><span>{{ file.name }}</span><button type="button" (click)="removeFile($index)" [attr.aria-label]="'Remove ' + file.name">Remove</button></li>}</ul>}
+      <details class="organize">
+        <summary><span class="summary-label"><svg lucideSparkles aria-hidden="true"></svg> Organize now</span><span>Optional details</span></summary>
+        <div class="organize-fields">
+          <label>Title <span>Optional</span><input formControlName="title" maxlength="240" /></label>
+          <div class="row"><label>Kind<select formControlName="entryType"><option value="note">Note</option><option value="instruction">Instruction</option><option value="decision">Decision</option><option value="question">Question</option><option value="work_update">Work update</option><option value="reference">Reference</option></select></label><label>Project<select formControlName="projectId" (change)="projectChanged()"><option value="">Inbox — organize later</option>@for (project of projects(); track project.id) { <option [value]="project.id">{{ project.name }}</option> }</select></label></div>
+          <div class="row"><label>Task <span>Optional</span><select formControlName="taskId"><option value="">No task</option>@for(task of tasks();track task.id){<option [value]="task.id">{{task.title}}</option>}</select></label><label>Person / sender <span>Optional</span><select formControlName="senderPersonId"><option value="">No person</option>@for(person of people();track person.id){<option [value]="person.id">{{person.displayName}}</option>}</select></label></div>
+          <div class="row"><label>Received / occurred <span>Optional</span><input type="datetime-local" formControlName="occurredAt"/></label><label>Attachment purpose<select formControlName="attachmentPurpose"><option value="reference">Reference</option><option value="instruction">Instruction</option><option value="evidence_before">Evidence before</option><option value="evidence_after">Evidence after</option></select></label></div>
+          @if (files().length || recordedUrl()) {<label class="voice-option"><input type="checkbox" formControlName="transcribeAudio"/>Convert audio to searchable text after saving</label>}
+        </div>
+      </details>
+      @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+      <footer><button type="button" class="secondary" (click)="close()">Cancel</button><button type="submit" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Save capture' }}</button></footer>
+    </form>
+  }
+</dialog>

@@ -13,7 +13,7 @@ Updated: 22 October 2026.
 - Private-by-default API guard, profile version checks through `If-Match`, timezone editing, password rotation, and session listing/revocation.
 - Liveness and authenticated readiness endpoints, request IDs, validation, stable error envelopes, and runtime OpenAPI output.
 - Responsive Angular login, protected shell, Today placeholder, and profile/access page.
-- Nginx same-origin routing, MySQL 8.4 Compose services, a migration gate before API startup, persistent SQL/file volumes, and backup/checksum scripts.
+- Angular local proxy routing, explicit migrations before API startup, D:-resident SQL/private-file storage, and backup/checksum scripts.
 - XAMPP database initialization helper and a Postman Phase 1 smoke collection.
 - GitHub Actions build/test workflow.
 
@@ -44,16 +44,16 @@ Updated: 22 October 2026.
 
 The optimized browser entry is about 273 kB raw and 75 kB estimated transfer before lazy routes. This is an appropriate Phase 1 baseline.
 
-## Deferred deployment checks
+## Later local checks
 
-The local Phase 1 exit criteria pass. These checks belong to deployment hardening or later feature gates:
+The local Phase 1 exit criteria pass. Later slices completed or retained these checks:
 
-1. Run the Compose migration gate and volume persistence checks when Docker is available.
-2. Run migrations and critical API tests against production MySQL 8.4 rather than XAMPP MariaDB.
-3. Exercise a full off-server encrypted backup and file-original restore after Phase 2 introduces attachments.
-4. Benchmark representative OCR and three-to-five-minute voice samples before Phase 7.
-5. Run the configured GitHub Actions workflow after the repository is pushed; the same lint, test, and build commands pass locally.
+1. Completed: local process restart and D:-resident database/file persistence pass.
+2. Completed: all migrations and Phase 2–7 suites passed on checksum-verified portable MySQL 8.4.13.
+3. Completed: SQL plus all 20 private-file checksums passed an isolated local restore.
+4. Completed with synthetic OCR/audio for latency, memory, duration limits, and preservation. Personal recordings remain an optional accuracy observation.
+5. The same lint, test, and build commands used by CI pass locally.
 
-Phase 1 is complete for the local XAMPP development target. Docker and production MySQL checks remain explicit release gates rather than hidden assumptions.
+Phase 1 is complete for the local XAMPP target, and later phases verified the full local workflow.
 
 During setup, MariaDB reported corruption in several pre-existing `mysql` privilege tables. `mysqlcheck --auto-repair mysql` repaired them before the WoKim database and restricted user were created. The application schema itself passed backup and isolated restore verification afterward.

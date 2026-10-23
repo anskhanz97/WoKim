@@ -4,19 +4,35 @@
   "private": true,
   "description": "WoKim — a private work memory for developers.",
   "packageManager": "npm@11.6.2",
-  "workspaces": ["apps/*"],
-  "engines": {"node": ">=24.0.0 <25"},
+  "workspaces": [
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
   "scripts": {
     "build": "npm run build --workspace @wokim/api && npm run build --workspace @wokim/web",
     "dev:api": "npm run start:dev --workspace @wokim/api",
     "dev:web": "npm run start --workspace @wokim/web",
+    "dev:worker": "npm run start:worker --workspace @wokim/api",
+    "worker:once": "npm run worker:once --workspace @wokim/api",
     "lint": "npm run lint --workspace @wokim/api && npm run lint --workspace @wokim/web",
     "test": "npm run test --workspace @wokim/api -- --runInBand && npm run test --workspace @wokim/web -- --watch=false",
     "test:e2e:api": "npm run test:e2e --workspace @wokim/api",
+    "test:e2e:focus": "npm run test:e2e:focus --workspace @wokim/api",
+    "test:e2e:phase5": "npm run test:e2e:phase5 --workspace @wokim/api",
+    "test:e2e:phase6": "npm run test:e2e:phase6 --workspace @wokim/api",
+    "test:e2e:phase7": "npm run test:e2e:phase7 --workspace @wokim/api",
+    "test:transcription": "npm run test:transcription --workspace @wokim/api",
+    "test:performance": "npm run test:performance --workspace @wokim/api",
     "api:generate": "npm run generate:api --workspace @wokim/web",
     "db:migrate": "npm run db:migrate --workspace @wokim/api",
     "db:revert": "npm run db:revert --workspace @wokim/api",
     "owner:bootstrap": "npm run owner:bootstrap --workspace @wokim/api",
-    "owner:reset": "npm run owner:reset --workspace @wokim/api"
+    "owner:reset": "npm run owner:reset --workspace @wokim/api",
+    "db:seed:showcase": "npm run db:seed:showcase --workspace @wokim/api"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
   }
 }

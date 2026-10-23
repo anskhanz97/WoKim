@@ -79,7 +79,7 @@ export class AuthService {
 
   async sessions(): Promise<OwnerSession[]> {
     const response = await firstValueFrom(
-      this.http.get<DataResponse<OwnerSession[]>>('/api/v1/me/sessions', { withCredentials: true }),
+      this.http.get<DataResponse<OwnerSession[]>>('/api/v1/me/sessions?limit=100', { withCredentials: true }),
     );
     return response.data;
   }

@@ -1,0 +1,143 @@
+<div class="page">
+  <a routerLink="/inbox" class="back">← Inbox</a>
+  @if (error() && !entry()) {
+    <p role="alert" class="error">{{ error() }}</p>
+  }
+  @if (entry(); as item) {
+    <header>
+      <div>
+        <p>Source record · {{ item.createdAt | date: 'medium' }}</p>
+        <h1>{{ item.title || 'Untitled capture' }}</h1>
+      </div>
+      <span class="status-badge">{{ item.inboxState }}</span>
+    </header>
+    <div class="columns">
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <label>Title<input formControlName="title" maxlength="240" /></label
+        ><label>Working note<textarea formControlName="contentText" rows="12"></textarea></label>
+        <div class="row">
+          <label
+            >Kind<select formControlName="entryType">
+              <option value="note">Note</option>
+              <option value="instruction">Instruction</option>
+              <option value="decision">Decision</option>
+              <option value="question">Question</option>
+              <option value="work_update">Work update</option>
+              <option value="reference">Reference</option>
+            </select></label
+          ><label
+            >Project<select formControlName="projectId" (change)="projectChanged()">
+              <option value="">No project</option>
+              @for (project of projects(); track project.id) {
+                <option [value]="project.id">{{ project.name }}</option>
+              }
+            </select></label
+          >
+        </div>
+        <div class="row">
+          <label>Task<select formControlName="taskId"><option value="">No task</option>@for(task of tasks();track task.id){<option [value]="task.id">{{task.title}}</option>}</select></label>
+          <label>Person / sender<select formControlName="senderPersonId"><option value="">No person</option>@for(person of people();track person.id){<option [value]="person.id">{{person.displayName}}</option>}</select></label>
+        </div>
+        <label
+          >Inbox state<select formControlName="inboxState">
+            <option value="unprocessed">Unprocessed</option>
+            <option value="organized">Organized</option>
+            <option value="dismissed">Dismissed</option>
+          </select></label
+        >
+        @if (error()) {
+          <p role="alert" class="error">{{ error() }}</p>
+        }
+        <div class="actions">
+          <button type="submit" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : 'Save changes' }}
+          </button>
+          <button type="button" class="secondary" (click)="dismiss()">Dismiss</button>
+          @if (item.projectId && !item.taskId) {
+            <button type="button" class="secondary" (click)="convertToTask()">
+              Create linked task
+            </button>
+          }
+          <button type="button" class="danger" (click)="trash()">Move to trash</button>
+        </div>
+      </form>
+      <aside>
+        <p class="eyebrow">Read-only anchor</p><h2>Preserved source</h2>
+        <dl class="source-meta"><div><dt>Source</dt><dd>{{item.sourceKind || 'capture'}}</dd></div>@if(item.sourceLabel){<div><dt>Label</dt><dd>{{item.sourceLabel}}</dd></div>}@if(item.occurredAt){<div><dt>Occurred</dt><dd>{{item.occurredAt | date:'medium'}}</dd></div>}@if(item.sourceUrl){<div><dt>Link</dt><dd><a [href]="item.sourceUrl" target="_blank" rel="noreferrer">Open source</a></dd></div>}</dl>
+        <div class="add-files">
+          <label>Add image or audio files<input type="file" multiple accept="image/png,image/jpeg,image/webp,audio/wav,audio/mpeg,audio/mp4,audio/webm" (change)="chooseFiles($event)" /></label>
+          <button type="button" (click)="addAttachments()" [disabled]="uploading() || !selectedFiles.length">{{ uploading() ? 'Adding…' : 'Add files' }}</button>
+        </div>
+        @if (item.originalText) {
+          <pre>{{ item.originalText }}</pre>
+        }
+        @for (file of item.attachments || []; track file.id) {
+          <article>
+            <strong>{{ file.originalName }}</strong
+            ><small
+              >{{ file.mimeType }} · {{ file.byteSize | number }} bytes ·
+              {{ file.mediaState }}</small
+            >
+            @if (file.mimeType.startsWith('image/')) {
+              <img
+                [src]="file.mediaState === 'ready' ? thumbnailUrl(file.id) : fileUrl(file.id)"
+                [alt]="file.caption || file.originalName"
+              />
+            } @else if (file.mimeType.startsWith('audio/')) {
+              <audio controls [src]="file.mediaState === 'ready' ? playbackUrl(file.id) : fileUrl(file.id)"></audio>
+            }
+            <label
+              >Purpose<select [value]="file.purpose" (change)="setPurpose(file.id, $event)">
+                <option value="instruction">Instruction</option>
+                <option value="evidence_before">Evidence before</option>
+                <option value="evidence_after">Evidence after</option>
+                <option value="reference">Reference</option>
+              </select></label
+            >
+            @if (file.caption) {
+              <p>{{ file.caption }}</p>
+            }
+            <div class="file-actions">
+              @if (file.mimeType.startsWith('image/')) {
+                <button type="button" class="secondary" (click)="process(file.id, 'ocr')">Extract text</button>
+              } @else if (file.mimeType.startsWith('audio/')) {
+                <button type="button" class="secondary" (click)="process(file.id, 'transcribe')">Transcribe privately</button>
+              }
+              <button type="button" class="secondary" (click)="editCaption(file.id, file.caption)">
+                {{ file.caption ? 'Edit caption' : 'Add caption' }}</button
+              ><button type="button" class="danger" (click)="trashAttachment(file.id)">
+                Remove
+              </button>
+            </div>
+            @if (processing()[file.id]) { <p role="status">{{ processing()[file.id] }}</p> }
+            @for(job of jobs()[file.id] || [];track job.id){<div class="job"><span>{{job.kind}} · {{job.status}} · attempt {{job.attempts}}/{{job.maxAttempts}}</span>@if(job.lastErrorMessage){<small>{{job.lastErrorMessage}}</small>}@if(job.status==='failed'){<button type="button" class="secondary" (click)="retry(job)">Retry</button>}</div>}
+            @for (text of extracted()[file.id] || []; track text.id) {
+              <section class="extraction" [class.previous]="!text.isCurrent">
+                <small>{{ text.kind }} revision {{ text.revisionNo }} · {{ text.isCurrent ? 'current' : 'previous' }}</small>
+                <pre>{{ text.reviewedText ?? text.machineText }}</pre>
+                @if (text.isCurrent) { <button type="button" class="secondary" (click)="review(text)">Review text</button> }
+              </section>
+            }
+            <a [href]="fileUrl(file.id)" target="_blank">Open original</a>
+          </article>
+        }
+        @if (!item.originalText && !(item.attachments || []).length) {
+          <p>No preserved source is available.</p>
+        }
+        <h2>Revision history</h2>
+        @for (revision of revisions(); track revision.id) {
+          <article>
+            <strong>Revision {{ revision.revisionNo }}</strong>
+            <small>{{ revision.createdAt | date: 'medium' }}</small>
+            @if (revision.changeReason) {
+              <p>{{ revision.changeReason }}</p>
+            }
+            <pre>{{ revision.contentText || '(empty)' }}</pre>
+          </article>
+        } @empty {
+          <p>No earlier revisions.</p>
+        }
+      </aside>
+    </div>
+  }
+</div>

@@ -1,6 +1,6 @@
 # WoKim — implementation plan
 
-Planning baseline: 22 October 2026. Status: Phase 0 baseline and local Phase 1 foundation complete; Phase 2 is next.
+Planning baseline: 22 October 2026. Status: Phases 0–7 and local Phase 8 hardening are implemented; production-host, real-device/audio, and personal-pilot gates remain open.
 
 This is a build specification for a private, responsive developer work-memory application. The confirmed stack is Angular, Node.js, NestJS, and MySQL. The working product description is not a final brand name.
 
@@ -20,6 +20,10 @@ This is a build specification for a private, responsive developer work-memory ap
 | [09-DECISIONS-AND-RISKS.md](09-DECISIONS-AND-RISKS.md) | Decisions, assumptions, validation experiments, and technical sources |
 | [10-PHASE-0-BASELINE.md](10-PHASE-0-BASELINE.md) | Validated versions, conventions, hosting proposal, and open processing gates |
 | [11-PHASE-1-IMPLEMENTATION.md](11-PHASE-1-IMPLEMENTATION.md) | Implemented foundation, verification results, and live-environment checks still pending |
+| [12-PHASE-2-PROGRESS.md](12-PHASE-2-PROGRESS.md) through [17-PHASE-7-PROGRESS.md](17-PHASE-7-PROGRESS.md) | Implemented vertical slices and acceptance evidence |
+| [18-OPERATIONS-RUNBOOK.md](18-OPERATIONS-RUNBOOK.md) | D:-resident local setup, backup, restore, update, and recovery procedures |
+| [19-USER-GUIDE.md](19-USER-GUIDE.md) | End-user workflows, recovery behavior, screenshots, and limits |
+| [20-PHASE-8-PROGRESS.md](20-PHASE-8-PROGRESS.md) | Final local hardening evidence and external release gates |
 
 ## How to execute this package
 
@@ -50,7 +54,7 @@ apps/web/                 Angular application
 apps/api/                 NestJS HTTP application and worker entry point
 packages/api-client/      generated Angular client; no database entities
 docs/                    this planning package and subsequent decisions
-infra/                   Dockerfiles, Compose, proxy, backup/restore scripts
+infra/                   local database, backup, and restore scripts
 tests/e2e/               cross-application user journeys
 ```
 

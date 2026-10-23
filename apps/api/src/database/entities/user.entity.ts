@@ -29,6 +29,18 @@ export class UserEntity {
   @Column({ type: 'varchar', length: 64, default: 'UTC' })
   timezone!: string;
 
+  @Column({
+    name: 'active_focus_session_id',
+    type: 'char',
+    length: 36,
+    collation: 'ascii_bin',
+    nullable: true,
+  })
+  activeFocusSessionId!: string | null;
+
+  @Column({ name: 'focus_version', type: 'int', unsigned: true, default: 0 })
+  focusVersion!: number;
+
   @Column({ name: 'password_changed_at', type: 'datetime', precision: 3 })
   passwordChangedAt!: Date;
 

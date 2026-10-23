@@ -19,7 +19,7 @@ input { width: 100%; height: 3rem; padding: 0 .8rem; border: 1px solid var(--rul
 input:focus { outline: 3px solid var(--focus); border-color: var(--cobalt); }
 .primary { width: 100%; min-height: 3rem; margin-top: 1.4rem; border: 0; border-radius: .3rem; background: var(--cobalt); color: white; font: inherit; font-weight: 650; cursor: pointer; }
 .primary:disabled { opacity: .6; cursor: wait; }
-.form-error { padding: .75rem; border-left: 3px solid var(--danger); background: #fff1f1; color: #8c1b1b; }
+.form-error { padding: .75rem; border: 1px solid var(--danger); border-radius:var(--radius-sm); background: #fff1f1; color: #8c1b1b; }
 .field-error { display: block; margin-top: .35rem; color: var(--danger); }
 @media (max-width: 780px) {
   .login-page { display: block; background: var(--paper); }
@@ -30,3 +30,10 @@ input:focus { outline: 3px solid var(--focus); border-color: var(--cobalt); }
   .login-panel { padding: 1.25rem; }
   form { margin-top: -1rem; }
 }
+
+/* Work Constellation visual layer */
+.intro{position:relative;isolation:isolate;overflow:hidden;background:#10143d}.intro::before{content:"";position:absolute;z-index:-2;inset:0;background:linear-gradient(90deg,rgba(10,12,42,.96) 0%,rgba(10,12,42,.8) 42%,rgba(10,12,42,.16) 100%),url('/assets/work-constellation.png') center/cover}.intro::after{content:"";position:absolute;z-index:-1;width:28rem;height:28rem;right:-10rem;bottom:-12rem;border:1px solid rgba(109,211,255,.18);border-radius:50%;box-shadow:0 0 0 5rem rgba(81,70,229,.05),0 0 0 10rem rgba(81,70,229,.03)}
+.wordmark span{border-radius:.65rem;background:linear-gradient(135deg,#fff,#a9eaff);box-shadow:0 10px 30px rgba(16,189,232,.25)}.thread-label{color:#78e4ff}.capabilities{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:1.5rem}.capabilities span{padding:.45rem .7rem;border:1px solid rgba(255,255,255,.18);border-radius:999px;color:#edf2ff;background:rgba(255,255,255,.08);backdrop-filter:blur(8px);font-size:.78rem;font-weight:650}
+.thread-preview{max-width:36rem;padding:1rem 1.1rem;border:1px solid rgba(255,255,255,.12);border-radius:1rem;background:rgba(18,20,60,.48);backdrop-filter:blur(12px)}
+.login-panel{background:radial-gradient(circle at 80% 10%,#e2deff,transparent 35%),var(--paper)}form{position:relative;border:1px solid rgba(255,255,255,.85);border-radius:1.4rem;background:rgba(255,255,255,.88);box-shadow:0 30px 70px rgba(35,31,88,.14);backdrop-filter:blur(16px)}.secure-mark{display:grid;width:2.65rem;height:2.65rem;margin-bottom:1rem;place-items:center;border-radius:.85rem;color:white;background:linear-gradient(135deg,var(--cobalt),var(--violet));box-shadow:0 10px 25px rgba(81,70,229,.28)}input{height:3.2rem;border-radius:.8rem}.primary{min-height:3.2rem;border-radius:.85rem;background:linear-gradient(135deg,var(--cobalt),var(--violet));box-shadow:0 12px 28px rgba(81,70,229,.25)}
+@media(max-width:780px){.intro::before{background:linear-gradient(rgba(10,12,42,.82),rgba(10,12,42,.94)),url('/assets/work-constellation.png') 70% center/cover}.capabilities{display:none}form{margin-top:-1.5rem}.intro-copy>p:last-child{font-size:1rem}}

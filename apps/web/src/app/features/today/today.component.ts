@@ -1,13 +1,101 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
+import { Task, TodayView, WorkMemoryService } from '../../core/work-memory.service';
+import { LucideArrowRight, LucideAudioLines, LucideCalendarDays, LucideCamera, LucideCirclePause, LucideMessageCircleQuestionMark, LucidePlay, LucideSparkles, LucideZap } from '@lucide/angular';
 
 @Component({
-  imports: [RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideArrowRight, LucideAudioLines, LucideCalendarDays, LucideCamera, LucideCirclePause, LucideMessageCircleQuestionMark, LucidePlay, LucideSparkles, LucideZap],
   templateUrl: './today.component.html',
   styleUrl: './today.component.scss',
 })
-export class TodayComponent {
-  readonly today = new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date());
-  constructor(readonly auth: AuthService) {}
+export class TodayComponent implements OnInit {
+  readonly Boolean = Boolean;
+  readonly view = signal<TodayView | null>(null);
+  readonly error = signal('');
+  readonly saved = signal(false);
+  readonly historyDate = new FormControl('', { nonNullable: true });
+  readonly form = new FormGroup({
+    intendedOutcome: new FormControl('', { nonNullable: true }),
+    interruptionNotes: new FormControl('', { nonNullable: true }),
+    deadlineNotes: new FormControl('', { nonNullable: true }),
+    waitingNotes: new FormControl('', { nonNullable: true }),
+    reflection: new FormControl('', { nonNullable: true }),
+  });
+  readonly todayLabel = new Intl.DateTimeFormat(undefined, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date());
+
+  constructor(
+    readonly auth: AuthService,
+    readonly memory: WorkMemoryService,
+    private readonly route: ActivatedRoute,
+  ) {}
+
+  async ngOnInit() { await this.load(this.route.snapshot.paramMap.get('date') || undefined); }
+
+  isHistoric() { return Boolean(this.route.snapshot.paramMap.get('date')); }
+
+  async load(date?: string) {
+    this.error.set('');
+    try {
+      const view = await this.memory.today(date);
+      this.view.set(view);
+      this.historyDate.setValue(view.localDate);
+      this.form.patchValue({
+        intendedOutcome: view.checkIn?.intendedOutcome || '',
+        interruptionNotes: view.checkIn?.interruptionNotes || '',
+        deadlineNotes: view.checkIn?.deadlineNotes || '',
+        waitingNotes: view.checkIn?.waitingNotes || '',
+        reflection: view.checkIn?.reflection || '',
+      });
+    } catch {
+      this.error.set('Today could not be loaded.');
+    }
+  }
+
+  async focusTask(task: Task) {
+    const focus = this.memory.focus();
+    try {
+      await this.memory.focusCommand(
+        focus.task ? 'switch' : 'start',
+        focus.task
+          ? { targetTaskId: task.id, expectedFocusVersion: focus.focusVersion }
+          : { taskId: task.id, expectedFocusVersion: focus.focusVersion },
+      );
+      await this.load(this.view()?.localDate);
+    } catch {
+      this.error.set('Focus changed elsewhere. The current state has been refreshed.');
+      await this.load(this.view()?.localDate);
+    }
+  }
+
+  async save() {
+    const view = this.view();
+    if (!view) return;
+    this.error.set('');
+    this.saved.set(false);
+    try {
+      const items = [
+        ...(view.focus.task ? [{ section: 'current', taskId: view.focus.task.id }] : []),
+        ...view.paused.map((task) => ({ section: 'paused', taskId: task.id })),
+        ...view.due.map((task) => ({ section: 'due', taskId: task.id })),
+        ...view.waiting.map((item) => ({ section: 'waiting', followUpId: item.id })),
+      ];
+      const checkIn = await this.memory.saveCheckIn(view.localDate, {
+        expectedVersion: view.checkIn?.version ?? null,
+        timezone: view.timezone,
+        ...this.form.getRawValue(),
+        items,
+      });
+      this.view.set({ ...view, checkIn });
+      this.saved.set(true);
+    } catch {
+      this.error.set('The check-in changed elsewhere or contains an unavailable item. Reload and retry.');
+    }
+  }
 }

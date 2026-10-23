@@ -1,0 +1,117 @@
+<div class="page">
+  <header>
+    <div>
+      <p>Work constellation</p>
+      <h1>Projects</h1>
+      <span class="page-intro">Every active world, signal and next move—visible in one place.</span>
+    </div>
+    <button type="button" (click)="adding.set(!adding())">
+      {{ adding() ? 'Cancel' : '+ New project' }}
+    </button>
+  </header>
+  <div class="list-filters">
+    <label>Find by name<input [formControl]="projectQuery" (input)="reload()" placeholder="Search projects" /></label>
+    <label>Show<select [formControl]="viewStatus" (change)="reload()">
+      <option value="active">Active</option>
+      <option value="completed">Completed</option>
+      <option value="archived">Archived</option>
+    </select></label>
+  </div>
+  @if (adding()) {
+    <form [formGroup]="form" (ngSubmit)="create()">
+      <label>Name<input formControlName="name" maxlength="180" autofocus /></label
+      ><label>Description<textarea formControlName="description" rows="3"></textarea></label
+      ><label>Target date<input formControlName="targetDate" type="date" /></label
+      ><button type="submit">Create project</button>
+    </form>
+  }
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+  @if (!projects().length && !adding()) {
+    <section class="empty">
+      <strong>No active projects yet.</strong>
+      <p>Create the first project, or capture work without one and organize it later.</p>
+    </section>
+  } @else {
+    <ol>
+      @for (project of projects(); track project.id) {
+        <li [class]="'project-card tone-' + ($index % 4)">
+          <div class="project-visual" aria-hidden="true"><span></span><i></i><b>{{ project.name.slice(0, 1) }}</b></div>
+          <div class="project-copy">
+          <div>
+            <h2><a [routerLink]="['/projects', project.id, 'overview']">{{ project.name }}</a></h2>
+            <span class="status-badge">{{ project.status }}</span>
+          </div>
+          <p>{{ project.description || 'No description yet.' }}</p>
+          @if (project.targetDate) {
+            <time>Target {{ project.targetDate | date: 'mediumDate' }}</time>
+          }
+          <div class="project-actions"><a [routerLink]="['/projects', project.id, 'overview']">Open workspace →</a>
+          <details><summary>More actions</summary><div class="action-menu">
+            <button type="button" class="secondary" (click)="manage(project)">Manage people &amp; teams</button>
+            @if (project.status === 'active') {
+              <button type="button" class="secondary" (click)="transition(project, 'complete')">Complete</button>
+              <button type="button" class="secondary" (click)="transition(project, 'archive')">Archive</button>
+            } @else if (project.status === 'completed') {
+              <button type="button" class="secondary" (click)="transition(project, 'reactivate')">Reactivate</button>
+              <button type="button" class="secondary" (click)="transition(project, 'archive')">Archive</button>
+            } @else {
+              <button type="button" class="secondary" (click)="transition(project, 'restore')">Restore</button>
+            }
+          </div></details>
+          </div>
+          </div>
+        </li>
+      }
+    </ol>
+  }
+  @if (selected(); as project) {
+    <section class="associations">
+      <div>
+        <h2>{{ project.name }} context</h2>
+        <button
+          type="button"
+          class="secondary"
+          (click)="selected.set(null); associations.set(null)"
+        >
+          Close
+        </button>
+      </div>
+      <label
+        >Person<select [formControl]="personId">
+          <option value="">Choose a person</option>
+          @for (person of people(); track person.id) {
+            <option [value]="person.id">{{ person.displayName }}</option>
+          }
+        </select></label
+      ><button type="button" (click)="addPerson()">Add person</button
+      ><label
+        >Team<select [formControl]="teamId">
+          <option value="">Choose a team</option>
+          @for (team of teams(); track team.id) {
+            <option [value]="team.id">{{ team.name }}</option>
+          }
+        </select></label
+      ><button type="button" (click)="addTeam()">Add team</button>
+      @if (associations(); as links) {
+        <ul>
+          @for (person of links.people; track person.id) {
+            <li>
+              {{ person.displayName }}
+              <button type="button" class="link" (click)="removePerson(person.id)">Remove</button>
+            </li>
+          }
+          @for (team of links.teams; track team.id) {
+            <li>
+              {{ team.name }}
+              <button type="button" class="link" (click)="removeTeam(team.id)">Remove</button>
+            </li>
+          } @empty {
+            <li>No people or teams linked yet.</li>
+          }
+        </ul>
+      }
+    </section>
+  }
+</div>

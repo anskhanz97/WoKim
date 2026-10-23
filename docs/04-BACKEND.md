@@ -2,7 +2,7 @@
 
 ## Structure
 
-One NestJS application, TypeScript, REST under `/api/v1`, MySQL through TypeORM + mysql2, and private file storage. One worker entry point in the same codebase processes durable MySQL jobs. Run HTTP and worker as separate processes so long audio does not block API handling. A single repository and deployment stack is sufficient.
+One NestJS application, TypeScript, REST under `/api/v1`, MariaDB/MySQL through TypeORM + mysql2, and private D:-resident file storage. One worker entry point in the same codebase processes durable database jobs. Run HTTP and worker as separate local processes so long audio does not block API handling.
 
 Proposed modules:
 
@@ -29,7 +29,7 @@ Controllers parse/validate and call services. Services own business rules/transa
 ## Authentication and single-owner setup
 
 - Create the initial owner using a server-side CLI command requiring interactive password input. No default password and no public setup/signup endpoint.
-- Passwords use a maintained Argon2id implementation with deployment-calibrated settings and a documented library baseline. Never invent a password hashing scheme.
+- Passwords use a maintained Argon2id implementation with measured settings and a documented library baseline. Never invent a password hashing scheme.
 - Use a cryptographically random opaque server-session cookie, hash its secret in MySQL, and rotate on login. Production cookie: `__Host-wm_session`, Secure, HttpOnly, SameSite=Lax, Path=/, no Domain.
 - Proposed session limits: seven-day idle expiry and thirty-day absolute expiry; optional shorter sessions later. Throttle last_seen updates to avoid a write on every media range request.
 - Same-origin frontend and API. Require CSRF protection on every mutation, including login/logout. Use a maintained signed double-submit middleware: `/auth/csrf` establishes the signed secure cookie and returns the matching header token. Validate token plus Origin; reject cross-site/missing-invalid origins for browser mutations. Rotate on login/logout. Verify final behavior with Angular's configured header/cookie handling.

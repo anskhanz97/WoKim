@@ -7,8 +7,8 @@ Recorded: 22 October 2026. This document records decisions that have been checke
 - Product name: **WoKim**.
 - Repository: npm workspaces with `apps/web` and `apps/api`; no monorepo framework.
 - Development routing: Angular dev server proxies `/api` to NestJS.
-- Production routing: one origin through Nginx; `/api` reaches NestJS and every other route falls back to the Angular application.
-- Uploaded originals live outside the application image on a persistent volume. SQL and files are backed up together.
+- Local routing: the Angular development server proxies `/api` to loopback NestJS.
+- Uploaded originals, SQL, models, and backups live under D:-resident storage and are backed up together.
 
 ## Runtime and dependency matrix
 
@@ -21,16 +21,16 @@ Recorded: 22 October 2026. This document records decisions that have been checke
 | NestJS | 11.1.x | Supports Node 20+ |
 | TypeORM | 1.1.x | Node 24-compatible baseline |
 | MySQL driver | mysql2 3.24.x | TypeORM-supported MySQL/MariaDB driver |
-| Production database | MySQL 8.4 LTS | Target used for release verification |
-| Local XAMPP database | MariaDB 10.4.32 | Detected at `C:\xampp\mysql\bin\mysql.exe`; accepted for local learning and development |
+| Compatibility database | MySQL 8.4 LTS | Optional portable D:-resident engine used for migration/API verification |
+| Local XAMPP database | MariaDB 10.4.32 | Detected at `C:\xampp\mysql\bin\mysql.exe`; the running application uses separate D:-resident data on port 3307 |
 
-The application accepts `DB_TYPE=mysql` and `DB_TYPE=mariadb`. Migrations use the common subset needed by both engines. Before release, migrations and critical API tests must run against MySQL 8.4 because XAMPP's database is MariaDB rather than MySQL.
+The application accepts `DB_TYPE=mysql` and `DB_TYPE=mariadb`. Migrations use their common subset. All migrations and critical API tests pass on both the local MariaDB instance and portable MySQL 8.4.
 
 ## Migration strategy
 
 - TypeORM synchronization is disabled in every environment.
 - Every schema change is an ordered migration committed with the feature.
-- The API never runs migrations implicitly on startup. Deployment runs the migration command as a separate, observable step before starting the new API image.
+- The API never runs migrations implicitly on startup. Run the migration command explicitly before starting an updated API.
 - Rollback uses a database/file backup for destructive or data-shaping migrations. `migration:revert` is only a developer convenience for a migration whose reverse operation is known to preserve data.
 - Schema, OpenAPI contract, backend behavior, and Angular flow change in the same vertical slice.
 
@@ -47,13 +47,9 @@ The application accepts `DB_TYPE=mysql` and `DB_TYPE=mariadb`. Migrations use th
 
 The approved direction is the **working ledger** recorded in [`DESIGN.md`](../DESIGN.md): quiet paper/sheet surfaces, IBM Plex typography, a cobalt current-work thread, and amber interruption/resume state. Desktop uses a narrow rail and focused reading column. Mobile uses a single column, bottom navigation, and touch targets at least 44 px high.
 
-## Hosting proposal
+## Local-machine decision
 
-Initial recommendation: one DigitalOcean Basic Droplet with 4 shared vCPUs, 8 GiB RAM, 160 GiB SSD, and 5,000 GiB transfer at **USD 48/month**. This has enough memory to run Nginx, Angular static files, NestJS, MySQL, and a small CPU transcription worker on one private server during personal use. Weekly provider snapshots add 20% of the Droplet price; daily snapshots add 30%. Domain registration is separate and Let's Encrypt TLS is free.
-
-Choose the closest available DigitalOcean region after measuring latency from the phone and laptop. Keep an encrypted off-server backup outside the Droplet. Hosting is a proposal only; no purchase is part of Phase 0.
-
-Pricing source checked 22 October 2026: <https://www.digitalocean.com/pricing/droplets>.
+The current target is this PC. API, worker, web app, MariaDB data, private files, models, fixtures, reports, and backups are operated locally, with generated state on D:. Hosting choices are postponed and are not part of the local completion gate.
 
 ## OCR and voice processing gate
 
@@ -67,12 +63,12 @@ Before Phase 7 implementation, test:
 4. Common browser and messaging formats: WebM/Opus, Ogg/Opus, M4A/AAC, MP3, and WAV as available.
 5. Word accuracy for names, identifiers, ticket numbers, and technical phrases; processing time; peak memory; and output size.
 
-The starting private pipeline is FFmpeg normalization plus a local Whisper-compatible worker. The worker is a separate process and queue even if it shares the first server. An 8 GiB host is the minimum candidate; actual model size, concurrency, and throughput remain pending the sample benchmark. No paid transcription API will be introduced silently.
+The private pipeline is FFmpeg normalization plus a local Whisper-compatible worker in a separate process and queue. Synthetic verification measured the local pipeline; representative personal samples still determine useful language/name accuracy. No paid transcription API is used.
 
 ## Phase 0 status
 
-Completed decisions: repository conventions, dependency selection, database compatibility policy, migration policy, security baseline, interface direction, and costed hosting proposal. The baseline is installed, compiled, and exercised against the detected XAMPP MariaDB instance.
+Completed decisions: repository conventions, dependency selection, database compatibility policy, migration policy, security baseline, interface direction, and the D:-resident local topology. The baseline is installed, compiled, and exercised against the isolated XAMPP MariaDB instance.
 
 Verified evidence: a fresh dependency install, lint, unit tests, API build, optimized frontend build, and desktop/phone login layout checks all pass.
 
-Pending evidence: representative OCR/voice benchmark and production MySQL 8.4 verification. These gates do not block the completed local Phase 1 foundation and stay visible for the phases they affect.
+Pending evidence: representative personal voice accuracy and real-device microphone behavior. Portable MySQL 8.4 verification is complete; these remaining observations do not block storing and replaying local voice notes.

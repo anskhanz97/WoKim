@@ -5,6 +5,7 @@
       <p class="thread-label">Your private work memory</p>
       <h1 id="login-title">Return to the work without rebuilding the context.</h1>
       <p>Capture requests, preserve their source, and leave a clean resume point whenever another task interrupts.</p>
+      <div class="capabilities"><span>Voice → searchable</span><span>Evidence → connected</span><span>Context → ready</span></div>
     </div>
     <div class="thread-preview" aria-hidden="true">
       <span class="thread-dot"></span>
@@ -14,7 +15,8 @@
 
   <section class="login-panel" aria-labelledby="sign-in-title">
     <form (ngSubmit)="submit()" [formGroup]="form" novalidate>
-      <h2 id="sign-in-title">Sign in</h2>
+      <span class="secure-mark" aria-hidden="true">✦</span>
+      <h2 id="sign-in-title">Welcome back</h2>
       <p>Use the owner account created on this private installation.</p>
 
       @if (error()) { <div class="form-error" role="alert">{{ error() }}</div> }

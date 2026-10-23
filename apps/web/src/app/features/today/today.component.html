@@ -1,26 +1,72 @@
 <div class="page">
-  <header class="page-heading">
-    <div><p>{{ today }}</p><h1>Good morning, {{ auth.owner()?.displayName }}.</h1></div>
-    <button type="button" disabled title="Capture arrives in Phase 2"><span>+</span> Capture</button>
-  </header>
+  @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+  @if (view(); as today) {
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="date-line">{{ isHistoric() ? view()?.localDate : todayLabel }}</p>
+        <h1>{{ isHistoric() ? 'Your work, exactly as it stood.' : 'Good morning, ' + auth.owner()?.displayName + '.' }}</h1>
+        <p class="hero-intro">One place for every active thread, decision, voice note, and visual proof.</p>
+        <div class="hero-actions">
+          <button type="button" class="capture-button" data-capture-trigger (click)="memory.captureOpen.set(true)"><svg lucideZap aria-hidden="true"></svg> Capture a thought</button>
+          <a routerLink="/projects">Explore projects <svg lucideArrowRight aria-hidden="true"></svg></a>
+        </div>
+        <div class="hero-capabilities" aria-label="WoKim capabilities">
+          <span><svg lucideAudioLines aria-hidden="true"></svg> Voice memory</span>
+          <span><svg lucideCamera aria-hidden="true"></svg> Visual evidence</span>
+          <span><svg lucideSparkles aria-hidden="true"></svg> Private processing</span>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true"><img src="/assets/work-constellation.png" alt="" /><span class="orbit orbit-one"></span><span class="orbit orbit-two"></span></div>
+    </header>
 
-  <section class="current-thread" aria-labelledby="current-title">
-    <div class="thread-line" aria-hidden="true"><span></span></div>
-    <div><p class="section-label">Current thread</p><h2 id="current-title">No task is active yet</h2><p>Phase 1 has secured your private workspace. Projects, tasks, and a real resume point arrive in the next slices.</p></div>
-  </section>
+    <section class="focus-card" aria-labelledby="current-title">
+      <div class="focus-orb"><span></span><svg lucidePlay aria-hidden="true"></svg></div>
+      <div class="focus-copy">
+        <span>Current thread</span>
+        @if (today.focus.task; as task) {
+          <h2 id="current-title"><a [routerLink]="['/tasks', task.id]">{{ task.title }}</a></h2>
+          <p>{{ task.nextAction || 'Add a next action so returning here is effortless.' }}</p>
+        } @else {
+          <h2 id="current-title">Choose the thread worth moving today</h2>
+          <p>Start a due task below or enter a project workspace.</p>
+        }
+      </div>
+      @if(today.focus.task; as task){<a class="resume" [routerLink]="['/tasks',task.id]">Open focus <svg lucideArrowRight aria-hidden="true"></svg></a>}
+    </section>
 
-  <section class="check-in" aria-labelledby="check-in-title">
-    <header><div><p class="section-label">Daily clarity</p><h2 id="check-in-title">Four questions for today</h2></div><span>Available after tasks and follow-ups</span></header>
-    <ol>
-      <li><span>01</span><div><strong>What am I working on?</strong><p>Your active task and intended outcome will appear here.</p></div></li>
-      <li><span>02</span><div><strong>What did I interrupt?</strong><p>Paused work will retain its latest checkpoint.</p></div></li>
-      <li><span>03</span><div><strong>What is due soon?</strong><p>Upcoming and overdue work will be separated clearly.</p></div></li>
-      <li><span>04</span><div><strong>Who owes me an answer?</strong><p>Open questions will stay attached to people and projects.</p></div></li>
-    </ol>
-  </section>
+    <section class="signal-grid" aria-label="Today at a glance">
+      <article class="signal interrupted"><div class="signal-icon"><svg lucideCirclePause aria-hidden="true"></svg></div><div><strong>{{ today.paused.length }}</strong><span>Interrupted threads</span></div><div class="mini-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div></article>
+      <article class="signal due"><div class="signal-icon"><svg lucideCalendarDays aria-hidden="true"></svg></div><div><strong>{{ today.due.length }}</strong><span>Deadlines ahead</span></div><div class="mini-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div></article>
+      <article class="signal waiting"><div class="signal-icon"><svg lucideMessageCircleQuestionMark aria-hidden="true"></svg></div><div><strong>{{ today.waiting.length }}</strong><span>Waiting on answers</span></div><div class="mini-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div></article>
+    </section>
 
-  <aside class="setup-note">
-    <div><strong>Private workspace ready</strong><p>Your profile, sessions, CSRF protection, migrations, and API contract are connected.</p></div>
-    <a routerLink="/settings/profile">Review profile</a>
-  </aside>
+    <div class="work-board">
+      <section class="work-panel interrupted-panel">
+        <div class="panel-heading"><div><h2>Pick up where you left off</h2><p>Resume points keep the context intact.</p></div><span>{{today.paused.length}}</span></div>
+        <div class="panel-list">@for (task of today.paused; track task.id) {<article><div><a [routerLink]="['/tasks',task.id]">{{task.title}}</a><p>{{task.nextAction || 'No next action saved yet.'}}</p></div><button type="button" (click)="focusTask(task)" aria-label="Resume task"><svg lucidePlay aria-hidden="true"></svg></button></article>} @empty {<div class="visual-empty"><svg lucideCirclePause aria-hidden="true"></svg><strong>No interrupted work</strong><span>Your active threads are clean.</span></div>}</div>
+      </section>
+      <section class="work-panel due-panel">
+        <div class="panel-heading"><div><h2>Deadlines in view</h2><p>Only what needs your attention.</p></div><span>{{today.due.length}}</span></div>
+        <div class="panel-list">@for (task of today.due; track task.id) {<article><div><a [routerLink]="['/tasks',task.id]">{{task.title}}</a><p>{{task.deadline?.date || task.deadline?.at}}</p></div><button type="button" (click)="focusTask(task)" aria-label="Focus task"><svg lucideArrowRight aria-hidden="true"></svg></button></article>} @empty {<div class="visual-empty"><svg lucideCalendarDays aria-hidden="true"></svg><strong>Nothing is pressing</strong><span>No dated tasks need attention.</span></div>}</div>
+      </section>
+      <section class="work-panel waiting-panel">
+        <div class="panel-heading"><div><h2>Waiting room</h2><p>Questions that need another person.</p></div><span>{{today.waiting.length}}</span></div>
+        <div class="panel-list">@for (item of today.waiting; track item.id) {<article><div><strong>{{item.question}}</strong><p>{{item.followUpOn || 'No follow-up date'}}</p></div></article>} @empty {<div class="visual-empty"><svg lucideMessageCircleQuestionMark aria-hidden="true"></svg><strong>No open dependencies</strong><span>You are not waiting on a recorded answer.</span></div>}</div>
+      </section>
+    </div>
+
+    <details class="check-in" [open]="Boolean(today.checkIn)" aria-labelledby="check-in-title">
+      <summary><div><span>Daily clarity</span><h2 id="check-in-title">Turn today into a useful memory</h2><p>Five short prompts preserve intent, interruption, and reflection.</p></div><span class="check-state">{{today.checkIn ? 'Saved · review' : 'About 2 minutes'}}</span></summary>
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <label>What outcome matters for current work?<textarea formControlName="intendedOutcome" rows="3"></textarea></label>
+        <label>What did I interrupt?<textarea formControlName="interruptionNotes" rows="3"></textarea></label>
+        <label>What is due soon?<textarea formControlName="deadlineNotes" rows="3"></textarea></label>
+        <label>Who or what am I waiting on?<textarea formControlName="waitingNotes" rows="3"></textarea></label>
+        <label>Reflection<textarea formControlName="reflection" rows="3"></textarea></label>
+        <button type="submit">Save check-in</button>@if(saved()){<span role="status">Saved to your timeline</span>}
+      </form>
+    </details>
+
+    <aside class="history-picker"><div><svg lucideCalendarDays aria-hidden="true"></svg><span><strong>Travel through your work history</strong><small>Open any day exactly as it was recorded.</small></span></div><label><span>Choose a day</span><input type="date" [formControl]="historyDate" /></label><a [routerLink]="['/check-ins',historyDate.value]">Open day <svg lucideArrowRight aria-hidden="true"></svg></a></aside>
+  } @else {<div class="loading-scene" role="status"><span></span><span></span><span></span><p>Connecting your work threads…</p></div>}
 </div>

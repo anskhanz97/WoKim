@@ -1,0 +1,105 @@
+<div class="page">
+  @if (task(); as item) {
+    <a [routerLink]="['/projects', item.projectId, 'tasks']" class="back">← Project tasks</a>
+    <header>
+      <div>
+        <p>{{ item.type }} · {{ item.priority }}</p>
+        <h1>{{ item.title }}</h1>
+      </div>
+      <span>{{ item.status }}</span>
+    </header>
+    <div class="transitions">
+      @if (item.status === 'in_progress') {
+        <span>This is your current focus. Use the focus strip to pause, wait, or finish.</span>
+      } @else if (item.status === 'done' || item.status === 'cancelled') {
+        <button type="button" (click)="transition('reopen')">Reopen</button>
+      } @else {
+        <button type="button" (click)="focusTask()">
+          {{ memory.focus().task ? 'Switch here' : 'Start focus' }}
+        </button>
+        <button type="button" (click)="transition('ready')">Ready</button
+        ><button type="button" (click)="transition('wait')">Waiting</button
+        ><button type="button" (click)="transition('done')">Done</button
+        ><button type="button" class="danger" (click)="transition('cancel')">Cancel</button>
+      }
+    </div>
+    <details class="edit-panel">
+      <summary><span><strong>Edit task details</strong><small>Title, context, links, requester, and deadline</small></span><span>Edit</span></summary>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <label>Title<input formControlName="title" maxlength="240" /></label
+      ><label>Description<textarea formControlName="description" rows="8"></textarea></label>
+      <div class="row">
+        <label
+          >Type<select formControlName="type">
+            <option value="bug">Bug</option>
+            <option value="feature">Feature</option>
+            <option value="change">Change</option>
+            <option value="testing">Testing</option>
+            <option value="integration">Integration</option>
+            <option value="investigation">Investigation</option>
+            <option value="chore">Chore</option>
+          </select></label
+        ><label
+          >Priority<select formControlName="priority">
+            <option value="low">Low</option>
+            <option value="normal">Normal</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select></label
+        >
+      </div>
+      <label
+        >Requester<select formControlName="requestedByPersonId">
+          <option value="">None</option>
+          @for (person of people(); track person.id) {
+            <option [value]="person.id">{{ person.displayName }}</option>
+          }
+        </select></label
+      ><label>Next action<textarea formControlName="nextAction" rows="3"></textarea></label
+      ><label>Branch<input formControlName="branchName" maxlength="240" /></label>
+      <div class="links-editor">
+        <strong>Links</strong>
+        @for(link of links();track $index){<div class="saved-link"><a [href]="link.url" target="_blank" rel="noopener">{{link.label}}</a><small>{{link.kind}}</small><button type="button" class="danger" (click)="removeLink($index)">Remove</button></div>}
+        <div class="link-fields"><label>Kind<input [formControl]="linkKind" maxlength="24" /></label><label>Label<input [formControl]="linkLabel" maxlength="240" /></label><label>URL<input [formControl]="linkUrl" type="url" maxlength="2048" placeholder="https://" /></label><button type="button" (click)="addLink()">Add link</button></div>
+      </div>
+      <div class="row">
+        <label
+          >Deadline type<select formControlName="deadlineKind">
+            <option value="target">Target</option>
+            <option value="hard">Hard</option>
+          </select></label
+        ><label>Due date<input type="date" formControlName="dueDate" /></label>
+      </div>
+      @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
+      }
+      <button type="submit" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Save task' }}</button>
+    </form>
+    </details>
+    <section class="task-context">
+      <h2>Sources &amp; work history</h2>
+      @if (item.sourceEntryId) { <p><a [routerLink]="['/entries', item.sourceEntryId]">Open preserved source capture</a></p> } @else { <p>No source capture is linked.</p> }
+      <ol>@for(session of sessions();track session.id){<li><time>{{session.startedAt | date:'medium'}}</time><span>{{session.endedAt ? (session.endedAt | date:'medium') : 'Active now'}}{{session.endReason ? ' · ' + session.endReason : ''}}</span>@if(session.checkpointEntryId){<a [routerLink]="['/entries',session.checkpointEntryId]">Checkpoint</a>}</li>}@empty{<li>No focus sessions recorded.</li>}</ol>
+    </section>
+    <section class="task-context">
+      <h2>Follow-ups</h2>
+      <form class="inline-form" (ngSubmit)="addFollowUp()"><label>Question<input [formControl]="followUpQuestion" maxlength="100000" /></label><label>Follow up on<input type="date" [formControl]="followUpOn" /></label><button type="submit" [disabled]="!followUpQuestion.value.trim()">Add follow-up</button></form>
+      <ol>@for(followUp of followUps();track followUp.id){<li><span><strong>{{followUp.question}}</strong><small>{{followUp.status}} · {{followUp.followUpOn || 'No date'}}</small></span>@if(followUp.status==='waiting'){<button type="button" (click)="resolveFollowUp(followUp)">Resolve</button>}</li>}@empty{<li>No follow-ups linked.</li>}</ol>
+    </section>
+    <section class="evidence">
+      <header><h2>Visual evidence</h2><button type="button" (click)="createEvidence()">New evidence set</button></header>
+      @for (set of evidence(); track set.id) {
+        <article>
+          <h3>{{ set.title }}</h3>
+          <div class="comparison">
+            <div><strong>Before</strong>@for (evidenceItem of set.items; track evidenceItem.id) {@if(evidenceItem.side==='before'){<figure><img [src]="imageUrl(evidenceItem.attachmentId)" [alt]="evidenceItem.caption||'Before evidence'"/><figcaption>{{evidenceItem.caption}}</figcaption></figure>}}</div>
+            <div><strong>After</strong>@for (evidenceItem of set.items; track evidenceItem.id) {@if(evidenceItem.side==='after'){<figure><img [src]="imageUrl(evidenceItem.attachmentId)" [alt]="evidenceItem.caption||'After evidence'"/><figcaption>{{evidenceItem.caption}}</figcaption></figure>}}</div>
+          </div>
+          <div class="row"><select [formControl]="evidenceImageId"><option value="">Choose task image</option>@for(image of images();track image.id){<option [value]="image.id">{{image.originalName}}</option>}</select><select [formControl]="evidenceSide"><option value="before">Before</option><option value="after">After</option><option value="reference">Reference</option></select><button type="button" (click)="addEvidence(set)">Add image</button></div>
+        </article>
+      } @empty { <p>No evidence sets yet. Incomplete comparisons are allowed.</p> }
+    </section>
+  } @else if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</div>

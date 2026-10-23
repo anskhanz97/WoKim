@@ -1,0 +1,177 @@
+<div class="page">
+  <header>
+    <p>Collaboration map</p>
+    <h1>{{ selected()?.displayName || 'People & teams' }}</h1>
+    <span>Keep the humans, their requests and shared work connected.</span>
+  </header>
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+  <div class="directory-filters">
+    <label
+      >Find a person or team<input
+        [formControl]="directoryQuery"
+        (input)="reload()"
+        placeholder="Search directory" /></label
+    ><label class="check"
+      ><input type="checkbox" [formControl]="showArchived" (change)="reload()" />Show archived
+      only</label
+    >
+  </div>
+  <div class="columns">
+    <section>
+      <div class="section-heading">
+        <h2>People</h2>
+        <details>
+          <summary>Add person</summary>
+          <form [formGroup]="personForm" (ngSubmit)="addPerson()">
+            <label>Name<input formControlName="displayName" maxlength="120" /></label
+            ><label>Email<input formControlName="email" type="email" maxlength="254" /></label
+            ><label
+              >Handle<input
+                formControlName="handle"
+                maxlength="120"
+                placeholder="@optional" /></label
+            ><button type="submit">Add person</button>
+          </form>
+        </details>
+      </div>
+      <ol>
+        @for (person of people(); track person.id) {
+          <li>
+              <b class="avatar">{{ person.displayName.slice(0, 1) }}</b>
+              <span class="person-copy"
+              ><strong>{{ person.displayName }}</strong
+              ><small>{{ person.handle || person.email || 'No contact detail' }}</small></span
+            ><span class="row-actions"
+              ><a [routerLink]="['/people', person.id]">Context</a
+              ><button type="button" class="link" (click)="editPerson(person)">Edit</button
+              ><button type="button" class="link" (click)="togglePerson(person)">
+                {{ person.archivedAt ? 'Restore' : 'Archive' }}
+              </button></span
+            >
+          </li>
+        } @empty {
+          <li class="empty">No people yet.</li>
+        }
+      </ol>
+    </section>
+    <section>
+      <div class="section-heading">
+        <h2>Teams</h2>
+        <details>
+          <summary>Add team</summary>
+          <form [formGroup]="teamForm" (ngSubmit)="addTeam()">
+            <label>Team name<input formControlName="name" maxlength="120" /></label
+            ><button type="submit">Add team</button>
+          </form>
+        </details>
+      </div>
+      <ol>
+        @for (team of teams(); track team.id) {
+          <li>
+            <strong>{{ team.name }}</strong
+            ><span class="row-actions"
+              ><button type="button" class="link" (click)="editTeam(team)">Edit</button
+              ><button type="button" class="link" (click)="toggleTeam(team)">
+                {{ team.archivedAt ? 'Restore' : 'Archive' }}
+              </button></span
+            >
+          </li>
+        } @empty {
+          <li class="empty">No teams yet.</li>
+        }
+      </ol>
+    </section>
+  </div>
+  @if (selected(); as person) {
+    <section class="contact-context">
+      <h2>{{ person.displayName }} context</h2>
+      <div class="context-grid">
+        <div>
+          <h3>Projects</h3>
+          <ol>
+            @for (project of person.projects || []; track project.id) {
+              <li>
+                <span
+                  ><a [routerLink]="['/projects', project.id, 'overview']">{{ project.name }}</a
+                  ><small>{{ project.roleLabel || project.status }}</small></span
+                >
+              </li>
+            } @empty {
+              <li class="empty">No linked projects.</li>
+            }
+          </ol>
+        </div>
+        <div>
+          <h3>Teams</h3>
+          <ol>
+            @for (team of person.teams || []; track team.id) {
+              <li>
+                <span
+                  ><strong>{{ team.name }}</strong
+                  ><small>{{ team.roleLabel || 'Member' }}</small></span
+                >
+              </li>
+            } @empty {
+              <li class="empty">No linked teams.</li>
+            }
+          </ol>
+        </div>
+        <div>
+          <h3>Requested tasks</h3>
+          <ol>
+            @for (task of requestedTasks(); track task.id) {
+              <li>
+                <span
+                  ><a [routerLink]="['/tasks', task.id]">{{ task.title }}</a
+                  ><small>{{ task.status }}</small></span
+                >
+              </li>
+            } @empty {
+              <li class="empty">No requested tasks.</li>
+            }
+          </ol>
+        </div>
+        <div>
+          <h3>Related captures</h3>
+          <ol>
+            @for (entry of relatedEntries(); track entry.id) {
+              <li>
+                <span
+                  ><a [routerLink]="['/entries', entry.id]">{{
+                    entry.title || entry.contentText || 'Untitled capture'
+                  }}</a
+                  ><small>{{ entry.inboxState }}</small></span
+                >
+              </li>
+            } @empty {
+              <li class="empty">No related captures.</li>
+            }
+          </ol>
+        </div>
+      </div>
+      <h3>Outstanding questions</h3>
+      <form [formGroup]="followUpForm" (ngSubmit)="addFollowUp()">
+        <label>Question<textarea formControlName="question" rows="3"></textarea></label
+        ><label>Follow up on<input type="date" formControlName="followUpOn" /></label
+        ><button type="submit">Add follow-up</button>
+      </form>
+      <ol>
+        @for (item of followUps(); track item.id) {
+          <li>
+            <span
+              ><strong>{{ item.question }}</strong
+              ><small>{{ item.status }} · {{ item.followUpOn || 'no date' }}</small></span
+            >
+            @if (item.status === 'waiting') {
+              <button type="button" (click)="resolve(item)">Resolve</button>
+            }
+          </li>
+        } @empty {
+          <li class="empty">No questions for this person.</li>
+        }
+      </ol>
+    </section>
+  }
+</div>

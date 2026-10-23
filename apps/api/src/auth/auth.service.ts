@@ -72,7 +72,7 @@ export class AuthService {
   async listSessions(userId: number): Promise<SessionEntity[]> {
     return this.sessions.find({
       where: { userId, revokedAt: IsNull(), expiresAt: MoreThan(new Date()) },
-      order: { lastSeenAt: 'DESC' },
+      order: { lastSeenAt: 'DESC', id: 'ASC' },
     });
   }
 

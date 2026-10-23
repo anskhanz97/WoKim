@@ -1,0 +1,13 @@
+<div class="page">
+  <header><p>Recall</p><h1>Search your work</h1></header>
+  <form [formGroup]="form">
+    <label class="query">Search<input formControlName="q" maxlength="200" autofocus placeholder="Task, note, contact…" /></label>
+    <label>Type<select formControlName="type"><option value="">Everything</option><option value="task">Tasks</option><option value="entry">Entries</option><option value="derived">Extracted text</option><option value="person">People</option><option value="team">Teams</option></select></label>
+    <details><summary>Advanced filters</summary><div class="advanced"><label>Project<select formControlName="projectId"><option value="">All projects</option>@for(project of projects();track project.id){<option [value]="project.id">{{project.name}}</option>}</select></label><label>Person<select formControlName="personId"><option value="">All people</option>@for(person of people();track person.id){<option [value]="person.id">{{person.displayName}}</option>}</select></label><label>Task status<select formControlName="status"><option value="">Any status</option><option value="ready">Ready</option><option value="in_progress">In progress</option><option value="paused">Paused</option><option value="waiting">Waiting</option><option value="done">Done</option><option value="cancelled">Cancelled</option></select></label><label>From<input type="date" formControlName="from" /></label><label>To<input type="date" formControlName="to" /></label></div></details>
+    @if(form.controls.projectId.value || form.controls.personId.value || form.controls.status.value || form.controls.from.value || form.controls.to.value){<button type="button" class="clear" (click)="clearFilters()">Clear advanced filters</button>}
+  </form>
+  @if(error()){<p class="error" role="alert">{{error()}}</p>}
+  @if(loading()){<p class="state" role="status">Searching…</p>}
+  <ol>@for(item of results();track item.kind+item.id+(item.derivedTextId||'')){<li><a [routerLink]="link(item)"><small>{{item.kind === 'derived' ? 'extracted text' : item.kind}}</small><strong>{{item.title||'Untitled'}}</strong><p>{{item.snippet}}</p></a></li>}@empty{<li class="state-panel">{{form.controls.q.value ? 'No matching work. Try fewer filters or a broader phrase.' : 'Start typing to search your private work memory.'}}</li>}</ol>
+  @if(hasMore()){<button type="button" class="more" (click)="loadMore()" [disabled]="loading()">{{loading()?'Loading…':'Load more results'}}</button>}
+</div>

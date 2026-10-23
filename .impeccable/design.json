@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-23T05:20:00+05:00",
+  "title": "Design System: WoKim Work Constellation",
+  "extensions": {
+    "colorMeta": {
+      "constellation-cobalt": { "role": "primary", "displayName": "Constellation Cobalt", "canonical": "#5146e5", "tonalRamp": ["#171244", "#28216f", "#3b32a3", "#5146e5", "#756df0", "#a29df7", "#d8d5fd", "#f0efff"] },
+      "ultraviolet": { "role": "secondary", "displayName": "Ultraviolet", "canonical": "#8b5cf6", "tonalRamp": ["#27134f", "#452486", "#663bb8", "#8b5cf6", "#a985fa", "#c7b3fc", "#e5dcff", "#f5f1ff"] },
+      "signal-cyan": { "role": "tertiary", "displayName": "Signal Cyan", "canonical": "#10bde8", "tonalRamp": ["#063d4c", "#075d73", "#0786a5", "#10bde8", "#55d2f0", "#8ee3f7", "#c6f2fb", "#edfbfe"] },
+      "checkpoint-coral": { "role": "tertiary", "displayName": "Checkpoint Coral", "canonical": "#ff6b71", "tonalRamp": ["#551b24", "#832a35", "#bd414b", "#ff6b71", "#ff9397", "#ffb9bc", "#ffdddd", "#fff2f2"] },
+      "midnight-navy": { "role": "neutral", "displayName": "Midnight Navy", "canonical": "#11152f", "tonalRamp": ["#0b0d1c", "#11152f", "#242a50", "#414968", "#68708d", "#989eb4", "#ccd0dc", "#f2f3f7"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero statements and page-defining titles." },
+      "body": { "displayName": "Body", "purpose": "Dense work content, forms, and descriptions." },
+      "mono": { "displayName": "Technical Metadata", "purpose": "Status, dates, branches, and source fragments only." }
+    },
+    "shadows": [
+      { "name": "ambient-low", "value": "0 8px 24px rgba(35, 31, 87, .08)", "purpose": "Quiet controls and list surfaces." },
+      { "name": "work-surface", "value": "0 18px 48px rgba(35, 31, 87, .13)", "purpose": "Primary cards and raised workspace regions." },
+      { "name": "modal-depth", "value": "0 30px 90px rgba(14, 16, 45, .3)", "purpose": "Capture dialogs and temporary focus layers." }
+    ],
+    "motion": [{ "name": "tactile-standard", "value": "180ms cubic-bezier(.2,.8,.2,1)", "purpose": "Button press, card lift, and small state changes." }],
+    "breakpoints": [{ "name": "phone", "value": "600px" }, { "name": "navigation-collapse", "value": "760px" }, { "name": "wide-grid", "value": "1050px" }]
+  },
+  "components": [
+    {
+      "name": "Primary Button", "kind": "button", "refersTo": "button-primary", "description": "The confident action used for capture, create, save, and forward motion.",
+      "html": "<button class=\"ds-btn-primary\">Capture a thought</button>",
+      "css": ".ds-btn-primary{min-height:44px;padding:0 16px;border:0;border-radius:10px;color:#fff;background:linear-gradient(135deg,#5146e5,#8b5cf6);font:700 15px 'IBM Plex Sans',sans-serif;box-shadow:0 10px 24px rgba(81,70,229,.24);transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s}.ds-btn-primary:hover{transform:translateY(-2px);box-shadow:0 15px 30px rgba(81,70,229,.3)}.ds-btn-primary:active{transform:translateY(1px) scale(.985)}.ds-btn-primary:focus-visible{outline:3px solid #7c5cff;outline-offset:3px}"
+    },
+    {
+      "name": "Search Field", "kind": "input", "description": "A substantial quiet field for search and capture organization.",
+      "html": "<input class=\"ds-input\" placeholder=\"Search your work memory\">",
+      "css": ".ds-input{width:100%;min-height:48px;padding:0 14px;border:1px solid #b4bbcf;border-radius:10px;color:#12142a;background:#fff;font:400 16px 'IBM Plex Sans',sans-serif;transition:border-color .2s,box-shadow .2s}.ds-input:hover{border-color:#8d95ad}.ds-input:focus{outline:0;border-color:#5146e5;box-shadow:0 0 0 4px rgba(81,70,229,.12)}"
+    },
+    {
+      "name": "Status Chip", "kind": "chip", "refersTo": "status-chip", "description": "Written state reinforced by a pale luminous tint.",
+      "html": "<span class=\"ds-chip\">In progress</span>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;min-height:26px;padding:3px 9px;border-radius:999px;color:#5146e5;background:#eeecff;font:700 12px 'IBM Plex Mono',monospace}.ds-chip:focus-visible{outline:3px solid #7c5cff;outline-offset:3px}"
+    },
+    {
+      "name": "Work Surface Card", "kind": "card", "refersTo": "card", "description": "A translucent raised surface for tasks, people, and evidence.",
+      "html": "<article class=\"ds-card\"><strong>Ship the Work Constellation</strong><p>Review the populated Today screen.</p></article>",
+      "css": ".ds-card{padding:20px;border:1px solid rgba(255,255,255,.9);border-radius:16px;color:#12142a;background:rgba(255,255,255,.9);box-shadow:0 14px 38px rgba(35,31,88,.09);font:400 16px 'IBM Plex Sans',sans-serif;transition:transform .2s,box-shadow .2s}.ds-card strong{font:750 18px Manrope,sans-serif}.ds-card p{margin:8px 0 0;color:#5f6680}.ds-card:hover{transform:translateY(-3px);box-shadow:0 22px 48px rgba(35,31,88,.15)}.ds-card:focus-within{outline:3px solid #7c5cff;outline-offset:3px}"
+    },
+    {
+      "name": "Current Thread", "kind": "custom", "description": "The signature continuity surface connecting active work to its next action.",
+      "html": "<div class=\"ds-thread\"><span class=\"ds-thread-icon\">▶</span><div><small>Current thread</small><strong>Ship the Work Constellation interface</strong></div></div>",
+      "css": ".ds-thread{display:flex;align-items:center;gap:14px;padding:14px 18px;border:1px solid rgba(255,255,255,.9);border-radius:16px;color:#12142a;background:#fff;box-shadow:0 18px 48px rgba(35,31,87,.13);font-family:'IBM Plex Sans',sans-serif}.ds-thread-icon{display:grid;width:44px;height:44px;place-items:center;border-radius:13px;color:#fff;background:linear-gradient(145deg,#10bde8,#5146e5);box-shadow:0 8px 20px rgba(81,70,229,.28)}.ds-thread div{display:grid;gap:3px}.ds-thread small{color:#5146e5;font-weight:700}.ds-thread strong{font:750 17px Manrope,sans-serif}.ds-thread:focus-within{outline:3px solid #7c5cff;outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Work Constellation",
+    "overview": "WoKim is a private developer workspace where projects appear as connected worlds rather than rows in a notebook. Deep indigo space, luminous paths, evidence planes, and compact human nodes make context visible, while standard navigation and forms keep daily operation immediate. The interface is calm but energized: cinematic at the first viewport, structured and legible in working screens, and never dependent on color alone for meaning.",
+    "keyCharacteristics": ["Dimensional midnight navigation with a bright, connected content field.", "Manrope display type paired with workmanlike IBM Plex Sans body copy.", "Cobalt-to-violet actions, cyan information signals, and coral attention markers.", "Real evidence and generated product artwork instead of generic decoration.", "A single current thread remains visible across the workspace."],
+    "rules": [{ "name": "The Luminous Minority Rule", "body": "Bright hues identify activity and connection; most working surface area remains neutral and readable.", "section": "colors" }, { "name": "The Two-Speed Type Rule", "body": "Display type creates entry-point emotion; body type returns immediately to efficient reading.", "section": "typography" }, { "name": "The Three-Layer Rule", "body": "A screen may combine ground, work surface, and one elevated focus layer; further shadow stacking is noise.", "section": "elevation" }],
+    "dos": ["Do give every major screen one clear visual anchor before dense work content begins.", "Do use Lucide icons with labels for navigation and consequential actions.", "Do preserve real screenshots, captions, OCR text, and source relationships as first-class visual evidence.", "Do keep responsive behavior functional down to 320px and respect reduced-motion preferences."],
+    "donts": ["Don't return to uninterrupted white rows, thin rules, and table-first layouts as the dominant experience.", "Don't fill pages with equal generic cards; vary hierarchy according to work state and importance.", "Don't use gradients, orbit geometry, or 3D art without a work-memory meaning.", "Don't hide state behind color, icon-only actions, or hover-only information."]
+  }
+}
