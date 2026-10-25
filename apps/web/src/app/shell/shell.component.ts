@@ -8,17 +8,18 @@ import { CaptureComponent } from '../features/capture/capture.component';
 import { CaptureDraftService } from '../core/capture-draft.service';
 import { PromptDialogComponent } from '../shared/prompt-dialog.component';
 import { SidebarStateService } from './sidebar-state.service';
-import { LucideDatabaseBackup, LucideEllipsis, LucideFolderKanban, LucideHouse, LucideInbox, LucideLogOut, LucidePlus, LucideSearch, LucideSettings, LucideSparkles, LucideUsers } from '@lucide/angular';
+import { LucideCircleHelp, LucideDatabaseBackup, LucideEllipsis, LucideFolderKanban, LucideHouse, LucideInbox, LucideLogOut, LucidePlus, LucideSearch, LucideSettings, LucideSparkles, LucideUsers, LucideX } from '@lucide/angular';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, ReactiveFormsModule, CaptureComponent, PromptDialogComponent, LucideHouse, LucideInbox, LucideFolderKanban, LucideSearch, LucidePlus, LucideUsers, LucideSettings, LucideSparkles, LucideDatabaseBackup, LucideLogOut, LucideEllipsis],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, ReactiveFormsModule, CaptureComponent, PromptDialogComponent, LucideHouse, LucideInbox, LucideFolderKanban, LucideSearch, LucidePlus, LucideUsers, LucideSettings, LucideSparkles, LucideDatabaseBackup, LucideLogOut, LucideEllipsis, LucideCircleHelp, LucideX],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
 })
 export class ShellComponent implements OnInit, OnDestroy {
   @ViewChild('resumeDialog') resumeDialog?: ElementRef<HTMLDialogElement>;
   @ViewChild('moreDialog') moreDialog?: ElementRef<HTMLDialogElement>;
+  @ViewChild('guideDialog') guideDialog?: ElementRef<HTMLDialogElement>;
   private pollId?: number;
   private routeSubscription?: Subscription;
   readonly focusAction = signal<'pause' | 'wait' | 'finish'>('pause');
@@ -104,6 +105,12 @@ export class ShellComponent implements OnInit, OnDestroy {
 
   openMore(): void { this.moreDialog?.nativeElement.showModal(); }
   closeMore(): void { this.moreDialog?.nativeElement.close(); }
+  openGuide(): void { this.guideDialog?.nativeElement.showModal(); }
+  closeGuide(): void { this.guideDialog?.nativeElement.close(); }
+  startGuideCapture(): void {
+    this.closeGuide();
+    this.openCapture();
+  }
 
   async logout(): Promise<void> {
     const ownerId = this.auth.owner()?.id;

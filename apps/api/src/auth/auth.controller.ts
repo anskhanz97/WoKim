@@ -11,7 +11,11 @@ import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { CurrentSession } from './current-session.decorator';
 import { AuthService } from './auth.service';
-import { authCookieNames, privateCookieOptions } from './cookie-options';
+import {
+  authCookieNames,
+  privateCookieOptions,
+  sessionCookieOptions,
+} from './cookie-options';
 import { CsrfService } from './csrf.service';
 import { LoginDto } from './dto/login.dto';
 import { LoginThrottleService } from './login-throttle.service';
@@ -54,12 +58,14 @@ export class AuthController {
       input.email,
       input.password,
       input.deviceLabel,
+      input.rememberMe,
     );
     this.throttle.clear(throttleKey);
-    response.cookie(authCookieNames().session, result.secret, {
-      ...privateCookieOptions(),
-      expires: result.session.expiresAt,
-    });
+    response.cookie(
+      authCookieNames().session,
+      result.secret,
+      sessionCookieOptions(input.rememberMe ? result.session.expiresAt : undefined),
+    );
     return { data: { authenticated: true } };
   }
 

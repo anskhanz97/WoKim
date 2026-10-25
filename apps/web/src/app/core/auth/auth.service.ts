@@ -30,10 +30,14 @@ export class AuthService {
     }
   }
 
-  async login(email: string, password: string): Promise<void> {
+  async login(email: string, password: string, rememberMe = false): Promise<void> {
     await this.issueCsrf();
     await firstValueFrom(
-      this.http.post('/api/v1/auth/login', { email, password, deviceLabel: this.deviceLabel() }, { withCredentials: true }),
+      this.http.post(
+        '/api/v1/auth/login',
+        { email, password, rememberMe, deviceLabel: this.deviceLabel() },
+        { withCredentials: true },
+      ),
     );
     await this.loadProfile();
   }

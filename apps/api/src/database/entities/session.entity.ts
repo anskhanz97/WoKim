@@ -43,4 +43,7 @@ export class SessionEntity {
     nullable: true,
   })
   deviceLabel!: string | null;
+
+  @Column({ name: 'remember_me', type: 'boolean', default: false })
+  rememberMe!: boolean;
 }

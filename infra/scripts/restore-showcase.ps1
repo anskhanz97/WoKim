@@ -15,16 +15,25 @@ Get-Content -LiteralPath (Join-Path $workspace '.env') | ForEach-Object {
 }
 if (-not $settings.DB_PASSWORD) { throw 'DB_PASSWORD is missing from .env.' }
 
+function Get-Sha256([string]$Path) {
+  $stream = [System.IO.File]::OpenRead($Path)
+  try {
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try { return ([System.BitConverter]::ToString($sha256.ComputeHash($stream))).Replace('-', '') }
+    finally { $sha256.Dispose() }
+  } finally { $stream.Dispose() }
+}
+
 $fixtureRoot = Join-Path $workspace 'fixtures\showcase'
 $manifest = Get-Content -LiteralPath (Join-Path $fixtureRoot 'manifest.json') -Raw | ConvertFrom-Json
 $dump = Join-Path $fixtureRoot 'database.sql'
-if ((Get-FileHash -LiteralPath $dump -Algorithm SHA256).Hash -ne $manifest.databaseSha256) {
+if ((Get-Sha256 $dump) -ne $manifest.databaseSha256) {
   throw 'Showcase database checksum mismatch.'
 }
 foreach ($file in $manifest.files) {
   $path = Join-Path $fixtureRoot $file.path
   if (-not (Test-Path -LiteralPath $path)) { throw "Missing showcase file: $($file.path)" }
-  if ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $file.sha256) {
+  if ((Get-Sha256 $path) -ne $file.sha256) {
     throw "Showcase file checksum mismatch: $($file.path)"
   }
 }

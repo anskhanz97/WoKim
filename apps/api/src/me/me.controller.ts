@@ -15,7 +15,11 @@ import {
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { AuthService } from '../auth/auth.service';
-import { authCookieNames, privateCookieOptions } from '../auth/cookie-options';
+import {
+  authCookieNames,
+  privateCookieOptions,
+  sessionCookieOptions,
+} from '../auth/cookie-options';
 import { CurrentOwner } from '../auth/current-owner.decorator';
 import { CurrentSession } from '../auth/current-session.decorator';
 import { ChangePasswordDto } from '../auth/dto/change-password.dto';
@@ -92,11 +96,17 @@ export class MeController {
       input.newPassword,
       session.id,
       session.deviceLabel,
+      session.rememberMe,
     );
-    response.cookie(authCookieNames().session, replacement.secret, {
-      ...privateCookieOptions(),
-      expires: replacement.session.expiresAt,
-    });
+    response.cookie(
+      authCookieNames().session,
+      replacement.secret,
+      sessionCookieOptions(
+        replacement.session.rememberMe
+          ? replacement.session.expiresAt
+          : undefined,
+      ),
+    );
     return { data: { changed: true } };
   }
 

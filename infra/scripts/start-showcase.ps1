@@ -20,12 +20,17 @@ $env:TMP = $env:TEMP
 New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
 
 function Test-Port([int]$Port) {
-  try {
-    $client = [System.Net.Sockets.TcpClient]::new()
-    $client.Connect('127.0.0.1', $Port)
-    $client.Dispose()
-    return $true
-  } catch { return $false }
+  foreach ($hostName in @('127.0.0.1', '::1')) {
+    try {
+      $client = [System.Net.Sockets.TcpClient]::new()
+      $client.Connect($hostName, $Port)
+      $client.Dispose()
+      return $true
+    } catch {
+      if ($client) { $client.Dispose() }
+    }
+  }
+  return $false
 }
 
 if (-not (Test-Port 3308)) {
@@ -43,6 +48,21 @@ if (-not (Test-Port 3100)) {
   Write-Output 'Starting showcase API at http://127.0.0.1:3100'
   Start-Process -FilePath 'npm.cmd' -ArgumentList @('run','start:dev','--workspace','apps/api') -WorkingDirectory $workspace -WindowStyle Hidden
 } else { Write-Output 'Showcase API is already running on port 3100.' }
+
+$workerPidPath = Join-Path $workspace 'storage\tmp\showcase-worker.pid'
+$workerRunning = $false
+if (Test-Path -LiteralPath $workerPidPath) {
+  $workerPid = [int](Get-Content -LiteralPath $workerPidPath -Raw)
+  $workerProcess = Get-CimInstance Win32_Process -Filter "ProcessId=$workerPid" -ErrorAction SilentlyContinue
+  $workerRunning = $workerProcess -and $workerProcess.CommandLine -like '*start:worker*'
+}
+if (-not $workerRunning) {
+  Write-Output 'Starting showcase processing worker.'
+  $workerLog = Join-Path $workspace 'storage\tmp\showcase-worker.log'
+  $workerErrorLog = Join-Path $workspace 'storage\tmp\showcase-worker.error.log'
+  $worker = Start-Process -FilePath 'npm.cmd' -ArgumentList @('run','start:worker','--workspace','@wokim/api') -WorkingDirectory $workspace -WindowStyle Hidden -RedirectStandardOutput $workerLog -RedirectStandardError $workerErrorLog -PassThru
+  Set-Content -LiteralPath $workerPidPath -Value $worker.Id
+} else { Write-Output 'Showcase processing worker is already running.' }
 
 if (-not (Test-Port 4300)) {
   Write-Output 'Starting showcase web app at http://localhost:4300'

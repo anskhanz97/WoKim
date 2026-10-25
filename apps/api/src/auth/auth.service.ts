@@ -7,6 +7,7 @@ import { environment } from '../config/environment';
 import { SessionEntity } from '../database/entities/session.entity';
 import { UserEntity } from '../database/entities/user.entity';
 import type { SessionResult } from './auth.types';
+import { sessionIdleDays } from './session-duration';
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -25,6 +26,7 @@ export class AuthService {
     email: string,
     password: string,
     deviceLabel?: string,
+    rememberMe = false,
   ): Promise<SessionResult> {
     const owner = await this.users
       .createQueryBuilder('owner')
@@ -38,7 +40,7 @@ export class AuthService {
         message: 'Email or password is incorrect.',
       });
     }
-    return this.createSession(owner.id, deviceLabel);
+    return this.createSession(owner.id, deviceLabel, rememberMe);
   }
 
   async authenticate(
@@ -53,8 +55,12 @@ export class AuthService {
     if (!session || session.revokedAt) return null;
 
     const now = new Date();
-    const idleExpiry =
-      session.lastSeenAt.getTime() + this.settings.idleDays * DAY;
+    const idleDays = sessionIdleDays(
+      session.rememberMe,
+      this.settings.idleDays,
+      this.settings.absoluteDays,
+    );
+    const idleExpiry = session.lastSeenAt.getTime() + idleDays * DAY;
     if (session.expiresAt <= now || idleExpiry <= now.getTime()) return null;
 
     if (now.getTime() - session.lastSeenAt.getTime() > 5 * 60 * 1000) {
@@ -89,6 +95,7 @@ export class AuthService {
     newPassword: string,
     currentSessionId: string,
     deviceLabel?: string | null,
+    rememberMe = false,
   ): Promise<SessionResult> {
     const owner = await this.users
       .createQueryBuilder('owner')
@@ -113,6 +120,7 @@ export class AuthService {
     const replacement = await this.createSession(
       ownerId,
       deviceLabel ?? undefined,
+      rememberMe,
     );
     if (replacement.session.id === currentSessionId)
       throw new Error('Session rotation failed');
@@ -126,6 +134,7 @@ export class AuthService {
   private async createSession(
     userId: number,
     deviceLabel?: string,
+    rememberMe = false,
   ): Promise<SessionResult> {
     const secret = randomBytes(32).toString('base64url');
     const now = new Date();
@@ -138,6 +147,7 @@ export class AuthService {
       expiresAt: new Date(now.getTime() + this.settings.absoluteDays * DAY),
       revokedAt: null,
       deviceLabel: deviceLabel?.trim() || null,
+      rememberMe,
     });
     await this.sessions.save(session);
     return { session, secret };

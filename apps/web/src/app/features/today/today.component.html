@@ -3,8 +3,8 @@
   @if (view(); as today) {
     <header class="hero">
       <div class="hero-copy">
-        <p class="date-line">{{ isHistoric() ? view()?.localDate : todayLabel }}</p>
-        <h1>{{ isHistoric() ? 'Your work, exactly as it stood.' : 'Good morning, ' + auth.owner()?.displayName + '.' }}</h1>
+        <p class="date-line">{{ isHistoric() ? view()?.localDate : todayLabel() }}</p>
+        <h1>{{ isHistoric() ? 'Your work, exactly as it stood.' : greeting() + ', ' + auth.owner()?.displayName + '.' }}</h1>
         <p class="hero-intro">One place for every active thread, decision, voice note, and visual proof.</p>
         <div class="hero-actions">
           <button type="button" class="capture-button" data-capture-trigger (click)="memory.captureOpen.set(true)"><svg lucideZap aria-hidden="true"></svg> Capture a thought</button>

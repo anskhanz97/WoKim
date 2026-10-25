@@ -446,7 +446,7 @@ CREATE TABLE `migrations` (
 
 LOCK TABLES `migrations` WRITE;
 /*!40000 ALTER TABLE `migrations` DISABLE KEYS */;
-INSERT INTO `migrations` VALUES (1,1792638000000,'InitialOwnerAndSessions1792638000000'),(2,1792669000000,'PhaseTwoCaptureAndOrganization1792669000000'),(3,1792673000000,'AttachmentMediaMetadata1792673000000'),(4,1792681000000,'PhaseThreeTasksAndRequirements1792681000000'),(5,1792690000000,'PhaseFourFocusAndCheckIns1792690000000'),(6,1792700000000,'PhaseFiveFollowUpsAndEvidence1792700000000'),(7,1792710000000,'PhaseSixExportsAndDeletionManifest1792710000000'),(8,1792720000000,'PhaseSevenDerivedText1792720000000');
+INSERT INTO `migrations` VALUES (1,1792638000000,'InitialOwnerAndSessions1792638000000'),(2,1792669000000,'PhaseTwoCaptureAndOrganization1792669000000'),(3,1792673000000,'AttachmentMediaMetadata1792673000000'),(4,1792681000000,'PhaseThreeTasksAndRequirements1792681000000'),(5,1792690000000,'PhaseFourFocusAndCheckIns1792690000000'),(6,1792700000000,'PhaseFiveFollowUpsAndEvidence1792700000000'),(7,1792710000000,'PhaseSixExportsAndDeletionManifest1792710000000'),(8,1792720000000,'PhaseSevenDerivedText1792720000000'),(9,1792730000000,'RememberedSessions1792730000000');
 /*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `people`;
@@ -622,6 +622,7 @@ CREATE TABLE `sessions` (
   `expires_at` datetime(3) NOT NULL,
   `revoked_at` datetime(3) DEFAULT NULL,
   `device_label` varchar(180) DEFAULT NULL,
+  `remember_me` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_sessions_token_hash` (`token_hash`),
   KEY `idx_sessions_user` (`user_id`),

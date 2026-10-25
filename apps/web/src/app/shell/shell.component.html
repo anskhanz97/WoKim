@@ -19,6 +19,7 @@
     </nav>
 
     <div class="rail-footer">
+      <button type="button" aria-label="Open quick guide" title="Quick guide" (click)="openGuide()"><svg lucideCircleHelp aria-hidden="true"></svg><span class="nav-label">Quick guide</span></button>
       <a routerLink="/people" routerLinkActive="active" ariaCurrentWhenActive="page" aria-label="People and teams" title="People &amp; teams"><svg lucideUsers aria-hidden="true"></svg><span class="nav-label">People &amp; teams</span></a>
       <a routerLink="/settings/profile" routerLinkActive="active" ariaCurrentWhenActive="page" aria-label="Profile and timezone" title="Profile &amp; timezone"><svg lucideSettings aria-hidden="true"></svg><span class="nav-label">Profile &amp; timezone</span></a>
       <a routerLink="/settings/processing" routerLinkActive="active" ariaCurrentWhenActive="page" aria-label="Processing" title="Processing"><svg lucideSparkles aria-hidden="true"></svg><span class="nav-label">Processing</span></a>
@@ -79,6 +80,21 @@
     <a routerLink="/settings/profile" (click)="closeMore()">Profile &amp; timezone</a>
     <a routerLink="/settings/processing" (click)="closeMore()">Processing</a>
     <a routerLink="/settings/data" (click)="closeMore()">Data &amp; recovery</a>
+    <button type="button" (click)="closeMore(); openGuide()">Quick guide</button>
     <button type="button" (click)="closeMore(); logout()">Sign out</button>
   </nav>
+</dialog>
+
+<dialog #guideDialog class="guide-dialog" (click)="$event.target === guideDialog && closeGuide()">
+  <header>
+    <div><h2>Your daily WoKim flow</h2><p>From incoming thought to a clean resume point in about a minute.</p></div>
+    <button type="button" class="guide-close" (click)="closeGuide()" aria-label="Close quick guide"><svg lucideX aria-hidden="true"></svg></button>
+  </header>
+  <ol>
+    <li><svg lucidePlus aria-hidden="true"></svg><span><strong>Capture first</strong><small>Save the note, screenshot, or voice message while the context is fresh. Organization can wait.</small></span></li>
+    <li><svg lucideInbox aria-hidden="true"></svg><span><strong>Clear the inbox</strong><small>Connect each capture to its project, task, and person so the original source stays traceable.</small></span></li>
+    <li><svg lucideFolderKanban aria-hidden="true"></svg><span><strong>Choose one thread</strong><small>Open a task and select Start focus. WoKim keeps that thread visible across the app.</small></span></li>
+    <li><svg lucideHouse aria-hidden="true"></svg><span><strong>Return through Today</strong><small>Resume interrupted work, scan deadlines, and answer waiting questions without rebuilding context.</small></span></li>
+  </ol>
+  <footer><button type="button" class="secondary" (click)="closeGuide()">I’ll explore</button><button type="button" (click)="startGuideCapture()">Capture a thought</button></footer>
 </dialog>

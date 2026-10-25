@@ -24,6 +24,7 @@ import {
 import { ProjectAtlasItem, WorkMemoryService } from '../../core/work-memory.service';
 import { SidebarStateService } from '../../shell/sidebar-state.service';
 import { packBubbles } from './bubble-layout';
+import { SelectMenuDirective } from '../../shared/select-menu.directive';
 
 type BubbleMetric = 'tasks' | 'activity' | 'recency';
 type ProjectView = 'bubbles' | 'list';
@@ -33,6 +34,7 @@ type SortKey = 'name' | 'status' | 'metric' | 'updated';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    SelectMenuDirective,
     RouterLink,
     LucideArrowUpDown,
     LucideCircleDot,

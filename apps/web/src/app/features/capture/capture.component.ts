@@ -17,10 +17,11 @@ import { AuthService } from '../../core/auth/auth.service';
 import { PromptDialogService } from '../../core/prompt-dialog.service';
 import { Subscription, debounceTime } from 'rxjs';
 import { LucideMic, LucidePaperclip, LucideSparkles, LucideX } from '@lucide/angular';
+import { SelectMenuDirective } from '../../shared/select-menu.directive';
 
 @Component({
   selector: 'app-capture',
-  imports: [CommonModule, ReactiveFormsModule, LucideMic, LucidePaperclip, LucideSparkles, LucideX],
+  imports: [CommonModule, ReactiveFormsModule, LucideMic, LucidePaperclip, LucideSparkles, LucideX, SelectMenuDirective],
   templateUrl: './capture.component.html',
   styleUrl: './capture.component.scss',
 })

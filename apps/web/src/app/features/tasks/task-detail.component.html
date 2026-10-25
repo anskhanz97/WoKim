@@ -1,12 +1,17 @@
 <div class="page">
   @if (task(); as item) {
-    <a [routerLink]="['/projects', item.projectId, 'tasks']" class="back">← Project tasks</a>
-    <header>
+    <app-breadcrumbs [items]="[
+      { label: 'Projects', link: '/all-projects' },
+      { label: project()?.name || 'Project', link: ['/projects', item.projectId, 'overview'] },
+      { label: 'Tasks', link: ['/projects', item.projectId, 'tasks'] },
+      { label: item.title }
+    ]" />
+    <header class="task-hero">
       <div>
-        <p>{{ item.type }} · {{ item.priority }}</p>
+        <p class="task-kicker"><span>{{ item.type }}</span><span>{{ item.priority }} priority</span></p>
         <h1>{{ item.title }}</h1>
       </div>
-      <span>{{ item.status }}</span>
+      <span class="task-status"><i aria-hidden="true"></i>{{ item.status.replace('_', ' ') }}</span>
     </header>
     <div class="transitions">
       @if (item.status === 'in_progress') {
@@ -92,10 +97,19 @@
         <article>
           <h3>{{ set.title }}</h3>
           <div class="comparison">
-            <div><strong>Before</strong>@for (evidenceItem of set.items; track evidenceItem.id) {@if(evidenceItem.side==='before'){<figure><img [src]="imageUrl(evidenceItem.attachmentId)" [alt]="evidenceItem.caption||'Before evidence'"/><figcaption>{{evidenceItem.caption}}</figcaption></figure>}}</div>
-            <div><strong>After</strong>@for (evidenceItem of set.items; track evidenceItem.id) {@if(evidenceItem.side==='after'){<figure><img [src]="imageUrl(evidenceItem.attachmentId)" [alt]="evidenceItem.caption||'After evidence'"/><figcaption>{{evidenceItem.caption}}</figcaption></figure>}}</div>
+            <div><strong>Before</strong>@for (evidenceItem of set.items; track evidenceItem.id) {@if(evidenceItem.side==='before'){<figure><img tabindex="0" [src]="imageUrl(evidenceItem.attachmentId)" [alt]="evidenceItem.caption||'Before evidence'"/><figcaption>{{evidenceItem.caption}}</figcaption></figure>}}</div>
+            <div><strong>After</strong>@for (evidenceItem of set.items; track evidenceItem.id) {@if(evidenceItem.side==='after'){<figure><img tabindex="0" [src]="imageUrl(evidenceItem.attachmentId)" [alt]="evidenceItem.caption||'After evidence'"/><figcaption>{{evidenceItem.caption}}</figcaption></figure>}}</div>
           </div>
-          <div class="row"><select [formControl]="evidenceImageId"><option value="">Choose task image</option>@for(image of images();track image.id){<option [value]="image.id">{{image.originalName}}</option>}</select><select [formControl]="evidenceSide"><option value="before">Before</option><option value="after">After</option><option value="reference">Reference</option></select><button type="button" (click)="addEvidence(set)">Add image</button></div>
+          <div class="evidence-picker">
+            <label>Image from this task<select [formControl]="evidenceImageId"><option value="">Choose an existing image</option>@for(image of images();track image.id){<option [value]="image.id">{{image.originalName}}</option>}</select></label>
+            <label>Place it under<select [formControl]="evidenceSide"><option value="before">Before</option><option value="after">After</option><option value="reference">Reference</option></select></label>
+            <button type="button" [disabled]="!evidenceImageId.value" (click)="addEvidence(set)">Add selected image</button>
+            <label class="evidence-upload" [class.is-loading]="evidenceUploading() === set.id">
+              <input type="file" accept="image/png,image/jpeg,image/webp" multiple [disabled]="evidenceUploading() === set.id" (change)="uploadEvidence(set, $event)" />
+              <span>{{ evidenceUploading() === set.id ? 'Uploading images…' : 'Upload new images' }}</span>
+            </label>
+          </div>
+          @if (!images().length) { <p class="evidence-hint">No images are attached to this task yet. Upload one here and it will be preserved with the task source.</p> }
         </article>
       } @empty { <p>No evidence sets yet. Incomplete comparisons are allowed.</p> }
     </section>

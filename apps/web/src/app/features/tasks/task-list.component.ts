@@ -4,9 +4,12 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Person, Project, Task, WorkMemoryService } from '../../core/work-memory.service';
 import { ProjectNavComponent } from '../../shared/project-nav.component';
+import { DatePickerDirective } from '../../shared/date-picker.directive';
+import { SelectMenuDirective } from '../../shared/select-menu.directive';
+import { BreadcrumbsComponent } from '../../shared/breadcrumbs.component';
 
 @Component({
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, ProjectNavComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, ProjectNavComponent, DatePickerDirective, SelectMenuDirective, BreadcrumbsComponent],
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.scss',
 })

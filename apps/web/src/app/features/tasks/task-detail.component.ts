@@ -2,21 +2,26 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Attachment, EvidenceSet, FocusSession, FollowUp, Person, Task, WorkMemoryService } from '../../core/work-memory.service';
+import { Attachment, EvidenceSet, FocusSession, FollowUp, Person, Project, Task, WorkMemoryService } from '../../core/work-memory.service';
 import { PromptDialogService } from '../../core/prompt-dialog.service';
+import { DatePickerDirective } from '../../shared/date-picker.directive';
+import { SelectMenuDirective } from '../../shared/select-menu.directive';
+import { BreadcrumbsComponent } from '../../shared/breadcrumbs.component';
 
 @Component({
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, DatePickerDirective, SelectMenuDirective, BreadcrumbsComponent],
   templateUrl: './task-detail.component.html',
   styleUrl: './task-detail.component.scss',
 })
 export class TaskDetailComponent implements OnInit {
   readonly task = signal<Task | null>(null);
+  readonly project = signal<Project | null>(null);
   readonly people = signal<Person[]>([]);
   readonly error = signal('');
   readonly saving = signal(false);
   readonly evidence = signal<EvidenceSet[]>([]);
   readonly images = signal<Attachment[]>([]);
+  readonly evidenceUploading = signal<string | null>(null);
   readonly sessions = signal<FocusSession[]>([]);
   readonly followUps = signal<FollowUp[]>([]);
   readonly links = signal<NonNullable<Task['links']>>([]);
@@ -47,8 +52,9 @@ export class TaskDetailComponent implements OnInit {
   async ngOnInit() {
     try {
       const id = this.route.snapshot.paramMap.get('id')!;
-      const [loaded, people, evidence, images, sessions, followUps] = await Promise.all([
-        this.memory.task(id),
+      const loaded = await this.memory.task(id);
+      const [project, people, evidence, images, sessions, followUps] = await Promise.all([
+        this.memory.project(loaded.data.projectId),
         this.memory.people(),
         this.memory.evidenceSets(id),
         this.memory.taskEvidenceImages(id),
@@ -56,6 +62,7 @@ export class TaskDetailComponent implements OnInit {
         this.memory.followUps({ taskId: id }),
       ]);
       this.task.set(loaded.data);
+      this.project.set(project);
       this.people.set(people);
       this.evidence.set(evidence);
       this.images.set(images);
@@ -197,6 +204,39 @@ export class TaskDetailComponent implements OnInit {
       this.evidence.update((items) => items.map((item) => item.id === updated.id ? updated : item));
       this.evidenceImageId.setValue('');
     } catch { this.error.set('Image was not added. It must belong to this task and cannot be duplicated.'); }
+  }
+  async uploadEvidence(set: EvidenceSet, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files || []);
+    const task = this.task();
+    if (!task || !files.length) return;
+    this.evidenceUploading.set(set.id);
+    this.error.set('');
+    try {
+      const side = this.evidenceSide.value;
+      const entry = await this.memory.capture(
+        {
+          title: `Evidence for ${task.title}`,
+          entryType: 'reference',
+          sourceKind: 'upload',
+          projectId: task.projectId,
+          taskId: task.id,
+          attachmentPurpose: side === 'before' ? 'evidence_before' : side === 'after' ? 'evidence_after' : 'reference',
+        },
+        files,
+      );
+      let updated = set;
+      for (const image of (entry.attachments || []).filter((item) => item.mimeType.startsWith('image/'))) {
+        updated = await this.memory.addEvidenceItem(updated, image.id, side);
+      }
+      this.evidence.update((items) => items.map((item) => item.id === updated.id ? updated : item));
+      this.images.set(await this.memory.taskEvidenceImages(task.id));
+    } catch {
+      this.error.set('Images were not uploaded. Choose PNG, JPEG, or WebP files and try again.');
+    } finally {
+      this.evidenceUploading.set(null);
+      input.value = '';
+    }
   }
   imageUrl(id: string) { return `/api/v1/attachments/${encodeURIComponent(id)}/thumbnail`; }
   private fill(task: Task) {

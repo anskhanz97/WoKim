@@ -4,9 +4,11 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, debounceTime, distinctUntilChanged, firstValueFrom, of, startWith, switchMap, tap } from 'rxjs';
 import { Person, Project, SearchHit, WorkMemoryService } from '../../core/work-memory.service';
+import { DatePickerDirective } from '../../shared/date-picker.directive';
+import { SelectMenuDirective } from '../../shared/select-menu.directive';
 
 @Component({
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, DatePickerDirective, SelectMenuDirective],
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
 })

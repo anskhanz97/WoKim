@@ -1,0 +1,120 @@
+.image-lightbox {
+  width: min(94vw, 86rem);
+  max-width: none;
+  height: min(92dvh, 64rem);
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 1.35rem;
+  background: #0d1028;
+  box-shadow: var(--shadow-lg);
+  color: var(--on-dark);
+}
+
+.image-lightbox[open] {
+  animation: lightbox-in 180ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.image-lightbox__surface {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100%;
+}
+
+.image-lightbox header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.15rem;
+  background: rgba(17, 21, 47, .94);
+}
+
+.image-lightbox h2 {
+  max-width: 68rem;
+  margin: .15rem 0 0;
+  overflow: hidden;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.image-lightbox__eyebrow {
+  color: #a9dff4;
+  font-size: .72rem;
+  font-weight: 750;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.image-lightbox button {
+  display: grid;
+  flex: 0 0 auto;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: .8rem;
+  color: white;
+  background: rgba(255, 255, 255, .08);
+}
+
+.image-lightbox button:hover {
+  background: rgba(255, 255, 255, .16);
+}
+
+.image-lightbox button svg {
+  width: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.image-lightbox__canvas {
+  display: grid;
+  min-height: 0;
+  padding: clamp(.75rem, 2.5vw, 2rem);
+  place-items: center;
+  overflow: auto;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(81, 70, 229, .2), transparent 34rem),
+    #090b1d;
+}
+
+.image-lightbox__canvas img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: .5rem;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .35);
+}
+
+.image-lightbox p {
+  margin: 0;
+  padding: .65rem 1rem .8rem;
+  color: var(--dark-muted);
+  background: rgba(17, 21, 47, .94);
+  font-size: .78rem;
+  text-align: center;
+}
+
+@keyframes lightbox-in {
+  from { opacity: 0; transform: scale(.975) translateY(.4rem); }
+}
+
+@media (max-width: 600px) {
+  .image-lightbox {
+    width: 100vw;
+    height: 100dvh;
+    border-radius: 0;
+  }
+
+  .image-lightbox h2 {
+    max-width: calc(100vw - 6rem);
+  }
+}

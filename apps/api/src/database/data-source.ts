@@ -30,6 +30,7 @@ import { PhaseSixExportsAndDeletionManifest1792710000000 } from './migrations/17
 import { DerivedTextEntity } from './entities/derived-text.entity';
 import { ProcessingSettingEntity } from './entities/processing-setting.entity';
 import { PhaseSevenDerivedText1792720000000 } from './migrations/1792720000000-phase-seven-derived-text';
+import { RememberedSessions1792730000000 } from './migrations/1792730000000-remembered-sessions';
 
 const env = environment();
 
@@ -78,5 +79,6 @@ export const AppDataSource = new DataSource({
     PhaseFiveFollowUpsAndEvidence1792700000000,
     PhaseSixExportsAndDeletionManifest1792710000000,
     PhaseSevenDerivedText1792720000000,
+    RememberedSessions1792730000000,
   ],
 });

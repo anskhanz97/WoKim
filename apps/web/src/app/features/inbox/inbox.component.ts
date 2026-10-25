@@ -3,9 +3,11 @@ import { Component, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Entry, Person, Project, WorkMemoryService } from '../../core/work-memory.service';
+import { DatePickerDirective } from '../../shared/date-picker.directive';
+import { SelectMenuDirective } from '../../shared/select-menu.directive';
 
 @Component({
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, DatePickerDirective, SelectMenuDirective],
   templateUrl: './inbox.component.html',
   styleUrl: './inbox.component.scss',
 })

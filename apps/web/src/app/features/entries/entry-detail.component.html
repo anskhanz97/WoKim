@@ -1,9 +1,9 @@
 <div class="page">
-  <a routerLink="/inbox" class="back">← Inbox</a>
   @if (error() && !entry()) {
     <p role="alert" class="error">{{ error() }}</p>
   }
   @if (entry(); as item) {
+    <app-breadcrumbs [items]="[{ label: 'Inbox', link: '/inbox' }, { label: item.title || 'Untitled capture' }]" />
     <header>
       <div>
         <p>Source record · {{ item.createdAt | date: 'medium' }}</p>
@@ -81,6 +81,7 @@
             >
             @if (file.mimeType.startsWith('image/')) {
               <img
+                tabindex="0"
                 [src]="file.mediaState === 'ready' ? thumbnailUrl(file.id) : fileUrl(file.id)"
                 [alt]="file.caption || file.originalName"
               />

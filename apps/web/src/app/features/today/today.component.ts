@@ -1,13 +1,25 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, computed, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { DailyActivity, Task, TodayView, WorkMemoryService } from '../../core/work-memory.service';
 import { LucideArrowRight, LucideAudioLines, LucideCalendarDays, LucideCamera, LucideCirclePause, LucideClock3, LucideFolderKanban, LucideListChecks, LucideMessageCircleQuestionMark, LucidePlay, LucideSparkles, LucideX, LucideZap } from '@lucide/angular';
+import { DatePickerDirective } from '../../shared/date-picker.directive';
+
+export function greetingFor(date: Date, timeZone: string): string {
+  const hour = Number(
+    new Intl.DateTimeFormat('en-US', { hour: 'numeric', hourCycle: 'h23', timeZone }).format(date),
+  );
+  if (hour < 5) return 'Good night';
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  if (hour < 21) return 'Good evening';
+  return 'Good night';
+}
 
 @Component({
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideArrowRight, LucideAudioLines, LucideCalendarDays, LucideCamera, LucideCirclePause, LucideClock3, LucideFolderKanban, LucideListChecks, LucideMessageCircleQuestionMark, LucidePlay, LucideSparkles, LucideX, LucideZap],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideArrowRight, LucideAudioLines, LucideCalendarDays, LucideCamera, LucideCirclePause, LucideClock3, LucideFolderKanban, LucideListChecks, LucideMessageCircleQuestionMark, LucidePlay, LucideSparkles, LucideX, LucideZap, DatePickerDirective],
   templateUrl: './today.component.html',
   styleUrl: './today.component.scss',
 })
@@ -26,11 +38,15 @@ export class TodayComponent implements OnInit {
     waitingNotes: new FormControl('', { nonNullable: true }),
     reflection: new FormControl('', { nonNullable: true }),
   });
-  readonly todayLabel = new Intl.DateTimeFormat(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  }).format(new Date());
+  readonly greeting = computed(() => greetingFor(new Date(), this.auth.owner()?.timezone ?? 'UTC'));
+  readonly todayLabel = computed(() =>
+    new Intl.DateTimeFormat(undefined, {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      timeZone: this.auth.owner()?.timezone ?? 'UTC',
+    }).format(new Date()),
+  );
 
   constructor(
     readonly auth: AuthService,

@@ -51,7 +51,7 @@ main { min-width: 0; }
 .focus-strip button { min-height:2.25rem; font: inherit; padding:.35rem .7rem; border:1px solid var(--dark-rule); border-radius:999px; background:transparent; color:var(--on-dark); }
 .focus-strip button:hover { border-color:white; }
 
-.resume-dialog,.more-dialog { padding:0; border:1px solid var(--rule); border-radius:var(--radius-md); background:var(--sheet); box-shadow:var(--shadow-lg); }
+.resume-dialog,.more-dialog,.guide-dialog { padding:0; border:0; border-radius:var(--radius-md); background:var(--sheet); box-shadow:var(--shadow-lg); }
 .resume-dialog { width:min(34rem,calc(100% - 2rem)); margin:auto; }
 .resume-dialog form { display:grid; gap:1rem; padding:1.5rem; }
 .resume-dialog h2,.more-dialog h2 { margin:0; font-size:1.4rem; }
@@ -68,4 +68,20 @@ main { min-width: 0; }
 .more-dialog nav { display:grid; gap:.2rem; margin:0; padding:.65rem; }
 .more-dialog nav :is(a,button) { display:flex; align-items:center; min-height:3rem; padding:0 .8rem; border:0; border-radius:var(--radius-sm); color:var(--ink); background:transparent; font:inherit; text-align:left; text-decoration:none; }
 .more-dialog nav :is(a,button):hover { background:var(--wash); }
+.guide-dialog { width:min(38rem,calc(100% - 2rem)); margin:auto; }
+.guide-dialog > header { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; padding:1.5rem 1.5rem 1.2rem; background:var(--navy); color:white; }
+.guide-dialog h2 { margin:0; font-size:1.55rem; }
+.guide-dialog header p { max-width:30rem; margin:.4rem 0 0; color:var(--dark-muted); line-height:1.45; }
+.guide-dialog .guide-close { display:grid; flex:0 0 auto; width:2.65rem; height:2.65rem; place-items:center; border:1px solid rgba(255,255,255,.18); border-radius:var(--radius-sm); color:white; background:rgba(255,255,255,.08); font-size:1.45rem; }
+.guide-dialog ol { display:grid; gap:0; margin:0; padding:.5rem 1.5rem; list-style:none; counter-reset:guide; }
+.guide-dialog li { display:grid; grid-template-columns:2.6rem 1fr; gap:.85rem; align-items:start; padding:1rem 0; border-bottom:1px solid var(--rule); counter-increment:guide; }
+.guide-dialog li:last-child { border-bottom:0; }
+.guide-dialog li > svg { width:2.4rem; height:2.4rem; padding:.55rem; border-radius:var(--radius-sm); color:var(--cobalt); background:var(--cobalt-soft); fill:none; stroke:currentColor; stroke-width:1.8; }
+.guide-dialog li span { display:grid; gap:.2rem; }
+.guide-dialog li strong::before { content:counter(guide) '. '; color:var(--cobalt); }
+.guide-dialog li small { color:var(--slate); font-size:.9rem; line-height:1.45; }
+.guide-dialog > footer { display:flex; justify-content:flex-end; gap:.65rem; padding:1rem 1.5rem 1.4rem; }
+.guide-dialog > footer button { min-height:2.75rem; padding:0 1rem; border:1px solid var(--cobalt); border-radius:var(--radius-sm); color:white; background:var(--cobalt); font-weight:700; }
+.guide-dialog > footer .secondary { color:var(--ink); border-color:var(--rule-strong); background:white; }
 @media(max-width:600px){.focus-strip{align-items:flex-start}.focus-actions{width:100%;margin-left:0}.focus-actions button{flex:1}}
+@media(max-width:600px){.guide-dialog{width:calc(100% - 1rem)}.guide-dialog > header{padding:1.2rem}.guide-dialog ol{padding:.35rem 1.2rem}.guide-dialog > footer{padding:1rem 1.2rem 1.2rem}.guide-dialog > footer button{flex:1}}

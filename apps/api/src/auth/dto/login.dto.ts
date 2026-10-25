@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsEmail,
   IsOptional,
   IsString,
@@ -23,4 +24,9 @@ export class LoginDto {
   @IsString()
   @MaxLength(180)
   deviceLabel?: string;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  rememberMe?: boolean;
 }

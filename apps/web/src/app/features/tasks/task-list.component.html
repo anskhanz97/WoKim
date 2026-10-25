@@ -1,5 +1,5 @@
 <div class="page">
-  <a routerLink="/projects" class="back">← Projects</a>
+  <app-breadcrumbs [items]="[{ label: 'Projects', link: '/all-projects' }, { label: project()?.name || 'Project', link: ['/projects', projectId, 'overview'] }, { label: 'Tasks' }]" />
   <header>
     <div>
       <p>{{ project()?.name || 'Project' }}</p>

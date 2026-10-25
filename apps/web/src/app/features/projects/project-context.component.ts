@@ -3,6 +3,9 @@ import { Component, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProjectNavComponent } from '../../shared/project-nav.component';
+import { DatePickerDirective } from '../../shared/date-picker.directive';
+import { SelectMenuDirective } from '../../shared/select-menu.directive';
+import { BreadcrumbsComponent } from '../../shared/breadcrumbs.component';
 import {
   Entry,
   EvidenceSet,
@@ -17,7 +20,7 @@ import {
 } from '../../core/work-memory.service';
 
 @Component({
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, ProjectNavComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, ProjectNavComponent, DatePickerDirective, SelectMenuDirective, BreadcrumbsComponent],
   templateUrl: './project-context.component.html',
   styleUrl: './project-context.component.scss',
 })
@@ -66,7 +69,14 @@ export class ProjectContextComponent implements OnInit {
   async reload() {
     this.error.set('');
     try {
-      if (this.mode === 'decisions') this.decisions.set(await this.memory.projectDecisions(this.projectId));
+      if (this.mode === 'decisions') {
+        const [project, decisions] = await Promise.all([
+          this.memory.project(this.projectId),
+          this.memory.projectDecisions(this.projectId),
+        ]);
+        this.project.set(project);
+        this.decisions.set(decisions);
+      }
       else if (this.mode === 'history') {
         const [project, history] = await Promise.all([
           this.memory.project(this.projectId),

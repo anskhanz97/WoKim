@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   Entry,
   EntryRevision,
@@ -14,13 +14,15 @@ import {
 } from '../../core/work-memory.service';
 import { PromptDialogService } from '../../core/prompt-dialog.service';
 import { LucideImagePlus } from '@lucide/angular';
+import { SelectMenuDirective } from '../../shared/select-menu.directive';
+import { BreadcrumbsComponent } from '../../shared/breadcrumbs.component';
 
 @Component({
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideImagePlus],
+  imports: [CommonModule, ReactiveFormsModule, LucideImagePlus, SelectMenuDirective, BreadcrumbsComponent],
   templateUrl: './entry-detail.component.html',
   styleUrl: './entry-detail.component.scss',
 })
-export class EntryDetailComponent implements OnInit {
+export class EntryDetailComponent implements OnInit, OnDestroy {
   readonly entry = signal<Entry | null>(null);
   readonly projects = signal<Project[]>([]);
   readonly people = signal<Person[]>([]);
@@ -34,6 +36,7 @@ export class EntryDetailComponent implements OnInit {
   readonly uploading = signal(false);
   selectedFiles: File[] = [];
   private etag = '';
+  private processingPoll?: number;
   readonly form = new FormGroup({
     title: new FormControl('', { nonNullable: true }),
     contentText: new FormControl('', { nonNullable: true }),
@@ -78,6 +81,9 @@ export class EntryDetailComponent implements OnInit {
     } catch {
       this.error.set('This capture could not be loaded.');
     }
+  }
+  ngOnDestroy() {
+    if (this.processingPoll) window.clearTimeout(this.processingPoll);
   }
   async save() {
     const current = this.entry();
@@ -222,8 +228,10 @@ export class EntryDetailComponent implements OnInit {
       this.jobs.update((state) => ({ ...state, [fileId]: jobs }));
       this.processing.update((state) => ({
         ...state,
-        [fileId]: 'Queued. Run the private worker, then refresh this entry.',
+        [fileId]: 'Queued for private processing. This panel will update automatically.',
       }));
+      const current = this.entry();
+      if (current) this.scheduleProcessingRefresh(current);
     } catch {
       this.processing.update((state) => ({ ...state, [fileId]: 'Could not queue processing.' }));
     }
@@ -263,5 +271,16 @@ export class EntryDetailComponent implements OnInit {
     );
     this.extracted.set(Object.fromEntries(rows.map((row) => [row.id, row.texts])));
     this.jobs.set(Object.fromEntries(rows.map((row) => [row.id, row.jobs])));
+    if (rows.some((row) => row.jobs.some((job) => job.status === 'queued' || job.status === 'running'))) {
+      this.scheduleProcessingRefresh(entry);
+    }
+  }
+  private scheduleProcessingRefresh(entry: Entry) {
+    if (this.processingPoll) window.clearTimeout(this.processingPoll);
+    this.processingPoll = window.setTimeout(() => {
+      if (this.entry()?.id === entry.id) {
+        void this.loadExtracted(entry).catch(() => undefined);
+      }
+    }, 1500);
   }
 }

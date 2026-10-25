@@ -15,3 +15,8 @@ export const privateCookieOptions = (): CookieOptions => ({
   sameSite: 'lax',
   path: '/',
 });
+
+export const sessionCookieOptions = (expires?: Date): CookieOptions => ({
+  ...privateCookieOptions(),
+  ...(expires ? { expires } : {}),
+});

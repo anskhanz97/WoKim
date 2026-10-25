@@ -3,8 +3,9 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Entry, FollowUp, Person, Task, Team, WorkMemoryService } from '../../core/work-memory.service';
 import { PromptDialogService } from '../../core/prompt-dialog.service';
+import { DatePickerDirective } from '../../shared/date-picker.directive';
 
-@Component({ imports: [ReactiveFormsModule, RouterLink], templateUrl: './people.component.html', styleUrl: './people.component.scss' })
+@Component({ imports: [ReactiveFormsModule, RouterLink, DatePickerDirective], templateUrl: './people.component.html', styleUrl: './people.component.scss' })
 export class PeopleComponent implements OnInit {
   readonly people = signal<Person[]>([]);
   readonly teams = signal<Team[]>([]);

@@ -1,5 +1,9 @@
 <div class="page">
-  <a routerLink="/projects" class="back">← Projects</a>
+  <app-breadcrumbs [items]="[
+    { label: 'Projects', link: '/all-projects' },
+    { label: project()?.name || 'Project', link: ['/projects', projectId, 'overview'] },
+    { label: mode === 'overview' ? 'Overview' : mode === 'history' ? 'History' : mode === 'decisions' ? 'Instructions & decisions' : mode === 'evidence' ? 'Visual evidence' : 'People & teams' }
+  ]" />
   <header>
     <div>
       <p>Project workspace</p>
@@ -97,7 +101,7 @@
             @for (side of ['before', 'after', 'reference']; track side) {
               <section><strong>{{ side }}</strong>
                 @for (item of set.items; track item.id) {
-                  @if (item.side === side) { <figure><img [src]="imageUrl(item.attachmentId)" [alt]="item.caption || side + ' evidence'"/><figcaption>{{ item.caption || item.viewportLabel || 'Unlabelled image' }}</figcaption></figure> }
+                  @if (item.side === side) { <figure><img tabindex="0" [src]="imageUrl(item.attachmentId)" [alt]="item.caption || side + ' evidence'"/><figcaption>{{ item.caption || item.viewportLabel || 'Unlabelled image' }}</figcaption></figure> }
                 } @empty { <p>No {{ side }} image.</p> }
               </section>
             }
